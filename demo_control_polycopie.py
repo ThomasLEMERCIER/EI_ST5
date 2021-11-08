@@ -37,51 +37,39 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
     (M, N) = numpy.shape(domain_omega)
     numb_iter = 100
     energy = numpy.zeros((numb_iter+1, 1), dtype=numpy.float64)
-    p= compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
-    E = J(domain_omega, p, spacestep, mu1, V_0)
 
     while k < numb_iter and mu > 10**(-5):
-        energy[k]=E
         print('---- iteration number = ', k)
+        print('1. computing solution of Helmholtz problem')
         p=compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha*chi)
-        #print('1. computing solution of Helmholtz problem', p)
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha, chi)
+        print('2. computing solution of adjoint problem')
         q=compute_q(p, domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha*chi)
-        #print('2. computing solution of adjoint problem', q)
-        E0=J(domain_omega, p, spacestep, mu1, V_0)
-        E=E0
-        #print('3. computing objective function', E)
-        grad_J=diff_J(p,q,Alpha)
-        #print('4. computing parametric gradient',grad_J)
-        while E>=E0 and mu > 10 ** -5:
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha, chi)
+        print('3. computing objective function')
+        E=J(domain_omega, p, spacestep, mu1, V_0)
+        while E>=J(domain_omega, p, spacestep, mu1, V_0) and mu > 10 ** -5:
             l=0
-            print('e',E)
-            chi_next=projector(l,chi-mu*grad_J,domain_omega)
+            print('4. computing parametric gradient')
+            grad_J=diff_J(p,q,Alpha)
+            clipped_grad_J = preprocessing.set2zero(grad_J, domain_omega)
+            chi_next=projector(l,chi-mu*clipped_grad_J)
             while abs(numpy.sum(chi_next)*spacestep-beta)>eps1:
                 if numpy.sum(chi_next)*spacestep>=beta:
                     l=l-eps2
                 else:
                     l=l+eps2
-                chi_next=projector(l,chi-mu*grad_J,domain_omega)
+                chi_next=projector(l,chi-mu*clipped_grad_J)
             p_next=compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha*chi_next)
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha, chi_next)
             E_next=J(domain_omega, p_next, spacestep, mu1, V_0)
 
-            
-            #print('    a. computing gradient descent')
-            #print('    b. computing projected gradient')
-            #print('    c. computing solution of Helmholtz problem, i.e., u')
-            #print('    d. computing objective function, i.e., energy (E)')
             if E_next<E:
                 # The step is increased if the energy decreased
                 mu = mu * 1.1
             else:
                 # The step is decreased is the energy increased
                 mu = mu / 2
-            E=E_next
-            p=p_next
             chi=chi_next
         k += 1
 
@@ -118,15 +106,17 @@ def J(domain_omega, p, spacestep, mu1, V_0):
     return energy
 
 def compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob):
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha, chi):
+    alpha_rob = Alpha * chi
     p = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
     return p
 
 def compute_q(p, domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob):
-    f = - 2 * numpy.conjugate(p)
-    q = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha, chi):
+    alpha_rob = Alpha * chi
+    f_adjoint = - 2 * numpy.conjugate(p)
+    q = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f_adjoint, f_dir, f_neu, f_rob,
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
     return q
 
@@ -165,7 +155,6 @@ if __name__ == '__main__':
 
     # -- set geometry of domain
     domain_omega, x, y, _, _ = preprocessing._set_geometry_of_domain(M, N, level)
-    print(domain_omega)
 
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
