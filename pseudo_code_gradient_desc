@@ -3,14 +3,19 @@ n_noeuds = nombre de noeuds sur le domaine Omega = N*M
 Beta = quantité de mousse maximum
 
 Algorithme : Descente de gradient(
-    set ki ~ {0,1}^n_noeuds random
-    set learning rate µ
-    set K
+    set X_k = X_0 ~ {0,1}^(N*M) matrice random
+    set learning rate µ réel
+    set numb_iter entier
+    set eps0, eps1, eps2 réels
 
-    Pour k allant de 0 à K-1:
-        calculer p_k, q_k par résolution                    #Matrice de taille n_noeuds
+    Pour k allant de 0 à numb_iter-1:
+        calculer p_k, q_k par résolution:                   #Matrice de taille n_noeuds
+            p_k = solve_helmotz()
+            q_k = solve_helmotz()
         calculer E = J_k l'intégrale de |p_k|² sur Omega    #Réel
+            E = J_k = J(X_k)
         calculer grad_J_k = -Re(alpha * p_k * q_k)          #Matrice de taille n_noeuds
+            grad_J_k = diff_J(X_k)
 
         Tant que E dépasse J_k  et  µ > eps0:
 
@@ -18,7 +23,23 @@ Algorithme : Descente de gradient(
             X_k+1 = X_k - µ * grad_J_k + l     #SGD
             X_k+1 est clip entre 0 et 1.
 
-            Tant que l'intégrale de X_k+1 sur Gamma_abs 
+            calcul de l : Tant que l'intégrale de X_k+1 sur Gamma_abs 
             s'éloigne de Beta de plus de eps1 :
+                l = l +/- eps2
+                X_k+1 = Pl(X_k - µ * grad_J_k)
+            
+            Modifier le learning rate en fonction de si on a dépassé
+            l'objectif:
+                Si J(X_k) > J(Xk+1):
+                    µ = µ + eps3
 
+             
 )           
+
+
+#Hyper-paramètres :
+
+eps0 : valeure minimale du learning rate µ en dessous de laquelle on considère qu'on a atteint un minimum local.
+eps1 : erreur autorisé entre Beta et sum(chi)
+eps2 : pas de la correction de la
+eps3 : pas du learning rate µ

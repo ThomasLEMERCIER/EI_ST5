@@ -15,9 +15,12 @@ import postprocessing
 #import solutions
 from alpha import compute_alpha
 
+
+
+
 def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu, f_rob,
                            beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
-                           Alpha, mu, chi, V_obj, mu1, V_0):
+                           Alpha, mu, chi, V_obj, mu1,eps1,eps2,beta):
     """This function return the optimized density.
 
     Parameter:
@@ -34,29 +37,62 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
     (M, N) = numpy.shape(domain_omega)
     numb_iter = 100
     energy = numpy.zeros((numb_iter+1, 1), dtype=numpy.float64)
+    p= compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+    E = J(domain_omega, p, spacestep, mu1, V_0)
+
     while k < numb_iter and mu > 10**(-5):
+        energy[k]=E
         print('---- iteration number = ', k)
-        print('1. computing solution of Helmholtz problem, i.e., u')
-        print('2. computing solution of adjoint problem, i.e., p')
-        print('3. computing objective function, i.e., energy')
-        print('4. computing parametric gradient')
-        while ene >= energy[k] and mu > 10 ** -5:
+        p=compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+        print('1. computing solution of Helmholtz problem', p)
+        q=compute_q(p, domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+        print('2. computing solution of adjoint problem', q)
+        E0=J(domain_omega, p, spacestep, mu1, V_0)
+        E=E0
+        print('3. computing objective function', E)
+        grad_J=diff_J(p,q,Alpha)
+        print('4. computing parametric gradient',grad_J)
+        while E>=E0 and mu > 10 ** -5:
+            l=0
+            chi_next=projector(l,chi-mu*grad_J)
+            print('ok')
+            while abs(numpy.sum(chi_next)*spacestep-beta)>eps1:
+                if numpy.sum(chi_next)*spacestep>=beta:
+                    l=l-eps2
+                else:
+                    l=l+eps2
+                chi_next=projector(l,chi-mu*grad_J)
+            p_next=compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+            E_next=J(domain_omega, p_next, spacestep, mu1, V_0)
+
+            
             print('    a. computing gradient descent')
             print('    b. computing projected gradient')
             print('    c. computing solution of Helmholtz problem, i.e., u')
             print('    d. computing objective function, i.e., energy (E)')
-            ene = compute_objective_function(domain_omega, u, spacestep, mu1, V_0)
-            if bool_a:
+            if E_next<E:
                 # The step is increased if the energy decreased
                 mu = mu * 1.1
             else:
                 # The step is decreased is the energy increased
                 mu = mu / 2
+            E=E_next
+            p=p_next
+            chi=chi_next
         k += 1
 
-    print('end. computing solution of Helmholtz problem, i.e., u')
+    print('end. computing solution of Helmholtz problem', u)
+    return chi, energy, u, grad_J
 
-    return chi, energy, u, grad
+def projector(l,chi):
+    for i in range(len(chi)):
+        for j in range(len(chi[i])):
+            chi[i][j]=max(0,min(chi[i,j]+l,1))
+    return chi
 
 
 def J(domain_omega, p, spacestep, mu1, V_0):
@@ -147,7 +183,6 @@ if __name__ == '__main__':
     # -- define material density matrix
     chi = preprocessing._set_chi(M, N, x, y)
     chi = preprocessing.set2zero(chi, domain_omega)
-
     # -- define absorbing material
     Alpha = compute_alpha(material, omega, precision)
     Alpha = Alpha[0] + Alpha[1] * 1j
@@ -181,10 +216,10 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     # -- compute optimization
     energy = numpy.zeros((100+1, 1), dtype=numpy.float64)
-    chi, energy, u, grad = your_optimization_procedure(...)
-    chi, energy, u, grad = solutions.optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                       beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
-                       Alpha, mu, chi, V_obj, mu1, V_0)
+    #chi, energy, u, grad = your_optimization_procedure(...)
+    chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
+                        Alpha, mu, chi, V_obj, mu1, V_0,1e-2,1e-2,2/5)
     # --- en of optimization
 
     chin = chi.copy()
