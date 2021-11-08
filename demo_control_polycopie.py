@@ -42,10 +42,10 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
         print('---- iteration number = ', k)
         print('1. computing solution of Helmholtz problem')
         p=compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha, chi)
         print('2. computing solution of adjoint problem')
         q=compute_q(p, domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha, chi)
         print('3. computing objective function')
         E=J(domain_omega, p, spacestep, mu1, V_0)
         while E>=J(domain_omega, p, spacestep, mu1, V_0) and mu > 10 ** -5:
@@ -61,7 +61,7 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
                     l=l+eps2
                 chi_next=projector(l,chi-mu*clipped_grad_J)
             p_next=compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha, chi_next)
             E_next=J(domain_omega, p_next, spacestep, mu1, V_0)
 
             if E_next<E:
@@ -106,14 +106,15 @@ def J(domain_omega, p, spacestep, mu1, V_0):
     return energy
 
 def compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob):
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha, chi):
     alpha_rob = Alpha * chi
     p = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
     return p
 
 def compute_q(p, domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob):
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha, chi):
+    alpha_rob = Alpha * chi
     f_adjoint = - 2 * numpy.conjugate(p)
     q = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f_adjoint, f_dir, f_neu, f_rob,
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
