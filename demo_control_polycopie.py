@@ -89,7 +89,7 @@ def projector(l,chi):
     return chi
 
 
-def your_compute_objective_function(domain_omega, u, spacestep, mu1, V_0):
+def J(domain_omega, p, spacestep, mu1, V_0):
     """
     This function compute the objective function:
     J(u,domain_omega)= \int_{domain_omega}||u||^2 + mu1*(Vol(domain_omega)-V_0)
@@ -106,10 +106,26 @@ def your_compute_objective_function(domain_omega, u, spacestep, mu1, V_0):
         V_0: float, it is a reference volume.
     """
 
-    energy = 0.0
+    p_norm = numpy.linalg.norm(p)
+    energy = numpy.sum(p_norm * p_norm) * spacestep * spacestep
 
     return energy
 
+def compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob):
+    p = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+    return p
+
+def compute_q(p, domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob):
+    f = - 2 * numpy.conjugate(p)
+    q = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+    return q
+
+def diff_J(p, q, alpha):
+    return - numpy.real(alpha * p * q)
 
 if __name__ == '__main__':
 
@@ -117,9 +133,9 @@ if __name__ == '__main__':
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- set parameters of the geometry
-    N = 50  # number of points along x-axis
+    N = 10  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 2 # level of the fractal
+    level = 1 # level of the fractal
     spacestep = 1.0 / N  # mesh size
 
     c0 = 340
@@ -143,6 +159,7 @@ if __name__ == '__main__':
 
     # -- set geometry of domain
     domain_omega, x, y, _, _ = preprocessing._set_geometry_of_domain(M, N, level)
+    print(domain_omega)
 
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
