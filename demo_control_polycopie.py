@@ -59,7 +59,9 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
                     l=l-eps2
                 else:
                     l=l+eps2
-                chi_next=projector(l,preprocessing.set2zero(chi-mu*grad_J, domain_omega))
+                grad_J=diff_J(p,q,Alpha)
+                clipped_grad_J = preprocessing.set2zero(grad_J, domain_omega)
+                chi_next=projector(l,chi-mu*clipped_grad_J)
             p_next=compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
             E_next=J(domain_omega, p_next, spacestep, mu1, V_0)
