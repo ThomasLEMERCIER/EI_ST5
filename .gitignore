@@ -1,0 +1,7 @@
+# File
+playground.py
+*.jpg
+
+# Folder
+__pycache__/
+.vscode/
