@@ -1,0 +1,24 @@
+n_frontiere = nombre de noeuds sur la frontière fractale Gamma_abs
+n_noeuds = nombre de noeuds sur le domaine Omega = N*M
+Beta = quantité de mousse maximum
+
+Algorithme : Descente de gradient(
+    set ki ~ {0,1}^n_noeuds random
+    set learning rate µ
+    set K
+
+    Pour k allant de 0 à K-1:
+        calculer p_k, q_k par résolution                    #Matrice de taille n_noeuds
+        calculer E = J_k l'intégrale de |p_k|² sur Omega    #Réel
+        calculer grad_J_k = -Re(alpha * p_k * q_k)          #Matrice de taille n_noeuds
+
+        Tant que E dépasse J_k  et  µ > eps0:
+
+            l = 0
+            X_k+1 = X_k - µ * grad_J_k + l     #SGD
+            X_k+1 est clip entre 0 et 1.
+
+            Tant que l'intégrale de X_k+1 sur Gamma_abs 
+            s'éloigne de Beta de plus de eps1 :
+
+)           
