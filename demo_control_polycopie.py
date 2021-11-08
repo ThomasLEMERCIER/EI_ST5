@@ -129,7 +129,6 @@ if __name__ == '__main__':
 
     # -- set geometry of domain
     domain_omega, x, y, _, _ = preprocessing._set_geometry_of_domain(M, N, level)
-    print(domain_omega)
 
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
@@ -182,10 +181,10 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     # -- compute optimization
     energy = numpy.zeros((100+1, 1), dtype=numpy.float64)
-    # chi, energy, u, grad = your_optimization_procedure(...)
-    #chi, energy, u, grad = solutions.optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-    #                    beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
-    #                    Alpha, mu, chi, V_obj, mu1, V_0)
+    chi, energy, u, grad = your_optimization_procedure(...)
+    chi, energy, u, grad = solutions.optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
+                       beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
+                       Alpha, mu, chi, V_obj, mu1, V_0)
     # --- en of optimization
 
     chin = chi.copy()
