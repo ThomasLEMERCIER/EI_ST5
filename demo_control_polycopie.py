@@ -47,15 +47,12 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
         q=compute_q(p, domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
         print('3. computing objective function')
-        E0=J(domain_omega, p, spacestep, mu1, V_0)
-        E=E0
-        while E>=E0 and mu > 10 ** -5:
+        E=J(domain_omega, p, spacestep, mu1, V_0)
+        while E>=J(domain_omega, p, spacestep, mu1, V_0) and mu > 10 ** -5:
             l=0
             print('4. computing parametric gradient')
             grad_J=diff_J(p,q,Alpha)
-            print(grad_J)
             clipped_grad_J = preprocessing.set2zero(grad_J, domain_omega)
-            print(clipped_grad_J)
             chi_next=projector(l,chi-mu*clipped_grad_J)
             while abs(numpy.sum(chi_next)*spacestep-beta)>eps1:
                 if numpy.sum(chi_next)*spacestep>=beta:
