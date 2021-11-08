@@ -18,7 +18,7 @@ from alpha import compute_alpha
 
 
 
-def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu, f_rob,
+def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                            beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
                            Alpha, mu, chi, V_obj,V_0, mu1,eps1,eps2,beta):
     """This function return the optimized density.
@@ -76,11 +76,11 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
     print('end. computing solution of Helmholtz problem', u)
     return chi, energy, p, grad_J
 
-def projector(l,chi,domain_omega):
+def projector(l,chi):
     for i in range(len(chi)):
         for j in range(len(chi[i])):
             chi[i][j]=max(0,min(chi[i,j]+l,1))
-    return preprocessing.set2zero(chi,domain_omega)
+    return chi
 
 
 def J(domain_omega, p, spacestep, mu1, V_0):
