@@ -18,7 +18,7 @@ from alpha import compute_alpha
 
 
 
-def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu, f_rob,
+def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                            beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
                            Alpha, mu, chi, V_obj, mu1,eps1,eps2,beta):
     """This function return the optimized density.
@@ -206,6 +206,9 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     # -- compute optimization
     energy = numpy.zeros((100+1, 1), dtype=numpy.float64)
+    # domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
+    #                       beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
+    #                       Alpha, mu, chi, V_obj, mu1,eps1,eps2,beta
     chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
                         Alpha, mu, chi, V_obj, mu1, V_0, 1e-2, 2/5)
