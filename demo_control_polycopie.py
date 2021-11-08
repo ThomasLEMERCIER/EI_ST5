@@ -20,7 +20,7 @@ from alpha import compute_alpha
 
 def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu, f_rob,
                            beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
-                           Alpha, mu, chi, V_obj, mu1,eps1,eps2,beta):
+                           Alpha, mu, chi, V_obj,V_0, mu1,eps1,eps2,beta):
     """This function return the optimized density.
 
     Parameter:
@@ -45,35 +45,35 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
         energy[k]=E
         print('---- iteration number = ', k)
         p=compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
-        print('1. computing solution of Helmholtz problem', p)
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha*chi)
+        #print('1. computing solution of Helmholtz problem', p)
         q=compute_q(p, domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
-        print('2. computing solution of adjoint problem', q)
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha*chi)
+        #print('2. computing solution of adjoint problem', q)
         E0=J(domain_omega, p, spacestep, mu1, V_0)
         E=E0
-        print('3. computing objective function', E)
+        #print('3. computing objective function', E)
         grad_J=diff_J(p,q,Alpha)
-        print('4. computing parametric gradient',grad_J)
+        #print('4. computing parametric gradient',grad_J)
         while E>=E0 and mu > 10 ** -5:
             l=0
-            chi_next=projector(l,chi-mu*grad_J)
-            print('ok')
+            print('e',E)
+            chi_next=projector(l,chi-mu*grad_J,domain_omega)
             while abs(numpy.sum(chi_next)*spacestep-beta)>eps1:
                 if numpy.sum(chi_next)*spacestep>=beta:
                     l=l-eps2
                 else:
                     l=l+eps2
-                chi_next=projector(l,chi-mu*grad_J)
+                chi_next=projector(l,chi-mu*grad_J,domain_omega)
             p_next=compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha*chi_next)
             E_next=J(domain_omega, p_next, spacestep, mu1, V_0)
 
             
-            print('    a. computing gradient descent')
-            print('    b. computing projected gradient')
-            print('    c. computing solution of Helmholtz problem, i.e., u')
-            print('    d. computing objective function, i.e., energy (E)')
+            #print('    a. computing gradient descent')
+            #print('    b. computing projected gradient')
+            #print('    c. computing solution of Helmholtz problem, i.e., u')
+            #print('    d. computing objective function, i.e., energy (E)')
             if E_next<E:
                 # The step is increased if the energy decreased
                 mu = mu * 1.1
@@ -86,13 +86,13 @@ def your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu,
         k += 1
 
     print('end. computing solution of Helmholtz problem', u)
-    return chi, energy, u, grad_J
+    return chi, energy, p, grad_J
 
-def projector(l,chi):
+def projector(l,chi,domain_omega):
     for i in range(len(chi)):
         for j in range(len(chi[i])):
             chi[i][j]=max(0,min(chi[i,j]+l,1))
-    return chi
+    return preprocessing.set2zero(chi,domain_omega)
 
 
 def J(domain_omega, p, spacestep, mu1, V_0):
@@ -218,10 +218,10 @@ if __name__ == '__main__':
     # -- compute optimization
     energy = numpy.zeros((100+1, 1), dtype=numpy.float64)
     #chi, energy, u, grad = your_optimization_procedure(...)
-    chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
-                        beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
-                        Alpha, mu, chi, V_obj, mu1, V_0,1e-2,1e-2,2/5)
-    # --- en of optimization
+    chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu, f_rob,
+                           beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
+                           Alpha, mu, chi, V_obj, V_0, mu1,10**-2,10**-3,2/5)
+    # --- end of optimization
 
     chin = chi.copy()
     un = u.copy()
