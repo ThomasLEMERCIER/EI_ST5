@@ -32,9 +32,9 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
     k = 0
     (M, N) = numpy.shape(domain_omega)
     numb_iter = 5
-    energy = numpy.zeros((numb_iter+1, 1), dtype=numpy.float64)
+    energy = numpy.zeros((numb_iter, 1), dtype=numpy.float64)
 
-    while k < numb_iter and mu > 10**(-5):
+    while k < numb_iter:
         print('---- iteration number = ', k)
         print('1. computing solution of Helmholtz problem')
         p=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
@@ -45,7 +45,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
         energy[k] = E
         while E>=J(domain_omega, p, spacestep, mu1, V_0) and mu > 10 ** -5:
             l=0
-            print('4. computing parametric gradient')
+            #print('4. computing parametric gradient')
             grad_J=diff_J(p,q,Alpha, domain_omega)
             clipped_grad_J = preprocessing.set2zero(grad_J, domain_omega)
             chi_next=projector(l,chi-mu*clipped_grad_J)
@@ -140,10 +140,20 @@ def compute_q(p, domain_omega, spacestep, wavenumber, Alpha, chi):
     return q
 
 def diff_J(p, q, alpha, domain_omega):
-    extract_on_boundary(p, domain_omega)
-    extract_on_boundary(q, domain_omega)
-    extract_on_boundary(p*q, domain_omega)
+    return diff_J_shifted(p, q, alpha, domain_omega)
     return - numpy.real(alpha * p * q)
+
+def diff_J_shifted(p, q, alpha, domain_omega):
+    #Cas où la frontière est linéaire : domain_omega[N, 0:N] = _env.NODE_ROBIN
+    M, N = domain_omega.shape
+    p_shifted = p.copy()
+    p_shifted[N, :] = p[N-1, :]
+    q_shifted = q.copy()
+    q_shifted[N, :] = q[N-1, :]
+    # extract_on_boundary(p_shifted, domain_omega)
+    # extract_on_boundary(q_shifted, domain_omega)
+    # extract_on_boundary(p*q, domain_omega)
+    return - numpy.real(alpha * p_shifted * q_shifted)
 
 def extract_on_boundary(matrix, domain_omega):
     indices = numpy.where(domain_omega == _env.NODE_ROBIN)
@@ -156,7 +166,7 @@ if __name__ == '__main__':
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- set parameters of the geometry
-    N = 10  # number of points along x-axis
+    N = 30  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
     level = 0 # level of the fractal
     spacestep = 1.0 / N  # mesh size
@@ -203,12 +213,10 @@ if __name__ == '__main__':
     # -- define absorbing material
     Alpha = compute_alpha(material, omega, precision)
     Alpha = Alpha[0] + Alpha[1] * 1j
-    print(Alpha)
     # -- this is the function you have written during your project
     #import compute_alpha
     #Alpha = compute_alpha.compute_alpha(...)
     alpha_rob = Alpha * chi
-    extract_on_boundary(alpha_rob, domain_omega)
 
     # -- set parameters for optimization
     S = 0  # surface of the fractal
@@ -230,7 +238,6 @@ if __name__ == '__main__':
     # -- compute finite difference solution
     u = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
-    print(J(domain_omega, u, spacestep, None, None))
     chi0 = chi.copy()
     u0 = u.copy()
 
