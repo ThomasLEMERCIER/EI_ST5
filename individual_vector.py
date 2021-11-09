@@ -15,9 +15,9 @@ class Individual_vector():
         self.fit()
 
     def crossover(self, individual):
-        alpha = rng.random()
-        beta = rng.random()
-
+        alpha = np.random.uniform()
+        beta = np.random.uniform()
+        
         baby_1 = Individual_vector( shape=self.shape, fitness_function=self.fitness_function)
         baby_2 = Individual_vector( shape=self.shape, fitness_function=self.fitness_function)
 
