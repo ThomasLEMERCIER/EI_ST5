@@ -48,6 +48,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha, chi)
         print('3. computing objective function')
         E=J(domain_omega, p, spacestep, mu1, V_0)
+        energy[k]=E
         while E>=J(domain_omega, p, spacestep, mu1, V_0) and mu > 10 ** -5:
             l=0
             print('4. computing parametric gradient')
@@ -60,20 +61,20 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                 else:
                     l=l+eps2
                 chi_next=projector(l,chi-mu*clipped_grad_J)
+
             p_next=compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha, chi_next)
             E_next=J(domain_omega, p_next, spacestep, mu1, V_0)
-
             if E_next<E:
                 # The step is increased if the energy decreased
                 mu = mu * 1.1
             else:
                 # The step is decreased is the energy increased
                 mu = mu / 2
+            E=E_next
             chi=chi_next
-        k += 1
-
-    print('end. computing solution of Helmholtz problem', u)
+        k+=1
+    print(k)
     return chi, energy, p, grad_J
 
 def projector(l,chi):
@@ -104,12 +105,16 @@ def J(domain_omega, p, spacestep, mu1, V_0):
     energy = numpy.sum(p_norm * p_norm) * spacestep * spacestep
 
     return energy
-
+g=0
 def compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha, chi):
+    global g
     alpha_rob = Alpha * chi
     p = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
+    if g==0:
+        print(p)
+        g=1
     return p
 
 def compute_q(p, domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
@@ -124,14 +129,13 @@ def diff_J(p, q, alpha):
     return - numpy.real(alpha * p * q)
 
 if __name__ == '__main__':
-
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- set parameters of the geometry
     N = 10  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 1 # level of the fractal
+    level = 0 # level of the fractal
     spacestep = 1.0 / N  # mesh size
 
     c0 = 340
@@ -211,7 +215,6 @@ if __name__ == '__main__':
                            beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
                            Alpha, mu, chi, V_obj, V_0, mu1,10**-2,10**-3,2/5)
     # --- end of optimization
-
     chin = chi.copy()
     un = u.copy()
 
