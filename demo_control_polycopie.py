@@ -43,9 +43,10 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
         print('3. computing objective function')
         E=J(domain_omega, p, spacestep, mu1, V_0)
         energy[k] = E
-        while E>=J(domain_omega, p, spacestep, mu1, V_0) and mu > 10 ** -5:
+        E_next=E
+        while E_next>=E and mu > 10 ** -5:
             l=0
-            #print('4. computing parametric gradient')
+            print('4. computing parametric gradient')
             grad_J=diff_J(p,q,Alpha, domain_omega)
             clipped_grad_J = grad_shifted(grad_J, domain_omega)
             chi_next=projector(l,chi-mu*clipped_grad_J)
@@ -57,24 +58,27 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
                 chi_next=projector(l,chi-mu*clipped_grad_J)
             p_next=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi_next)
             E_next=J(domain_omega, p_next, spacestep, mu1, V_0)
-
-            if E_next<E:
+            print(E,E_next,mu)
+            if E_next<J(domain_omega, p, spacestep, mu1, V_0):
                 # The step is increased if the energy decreased
                 mu = mu * 1.1
             else:
                 # The step is decreased is the energy increased
-                mu = mu / 2
-            E=E_next
-            chi=chi_next
+                mu = mu/2
+        chi=chi_next
+
         k += 1
 
     print('end. computing solution of Helmholtz problem')
     return chi, energy, p, grad_J
 
+<<<<<<< HEAD
 def projector(domain, l,chi):
     indices = numpy.where(domain == _env.NODE_ROBIN)
     chi[indices] += l
     return numpy.maximum(0, numpy.minimum(1, chi))
+=======
+>>>>>>> e4ae034ad9bd1c0a5d1935340b65b0fa557ad182
 
 def grad_shifted(grad,domain_omega):
     (M, N) = numpy.shape(domain_omega)
@@ -103,6 +107,15 @@ def grad_shifted(grad,domain_omega):
     return grad
 
 
+<<<<<<< HEAD
+=======
+def projector(l,chi):
+    for i in range(len(chi)):
+        for j in range(len(chi[i])):
+            chi[i][j]=max(0,min(chi[i,j]+l,1))
+    return chi
+
+>>>>>>> e4ae034ad9bd1c0a5d1935340b65b0fa557ad182
 def J(domain_omega, p, spacestep, mu1, V_0):
     """
     This function compute the objective function:
@@ -121,7 +134,12 @@ def J(domain_omega, p, spacestep, mu1, V_0):
 
     p_conj = numpy.conjugate(p)
     p_norm = numpy.real(p * p_conj)
+<<<<<<< HEAD
     energy = numpy.sum(p_norm * p_norm) * spacestep * spacestep
+=======
+    energy = numpy.sum(p_norm) * spacestep * spacestep
+
+>>>>>>> e4ae034ad9bd1c0a5d1935340b65b0fa557ad182
     return energy
 
 def compute_p(domain_omega, spacestep, wavenumber, Alpha, chi):
@@ -193,9 +211,9 @@ if __name__ == '__main__':
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- set parameters of the geometry
-    N = 20  # number of points along x-axis
+    N = 50  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 1 # level of the fractal
+    level = 2 # level of the fractal
     spacestep = 1.0 / N  # mesh size
     c0 = 340
     # -- set parameters of the partial differential equation
@@ -271,7 +289,7 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     # -- compute optimization
     energy = numpy.zeros((100+1, 1), dtype=numpy.float64)
-    chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi, mu, mu1, 1e-2, 1e-2, 0.3, V_0)
+    chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi, mu, mu1, 1e-2, 1e-2, 2/5, V_0)
     # --- en of optimization
 
     chin = chi.copy()
