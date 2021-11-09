@@ -45,7 +45,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
         energy[k] = E
         while E>=J(domain_omega, p, spacestep, mu1, V_0) and mu > 10 ** -5:
             l=0
-            #print('4. computing parametric gradient')
+            print('4. computing parametric gradient')
             grad_J=diff_J(p,q,Alpha, domain_omega)
             clipped_grad_J = grad_shifted(grad_J, domain_omega)
             chi_next=projector(l,chi-mu*clipped_grad_J)
@@ -58,7 +58,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
             p_next=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi_next)
             E_next=J(domain_omega, p_next, spacestep, mu1, V_0)
 
-            if E_next<E:
+            if E_next<J(domain_omega, p, spacestep, mu1, V_0):
                 # The step is increased if the energy decreased
                 mu = mu * 1.1
             else:
@@ -66,6 +66,8 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
                 mu = mu / 2
             E=E_next
             chi=chi_next
+            print(E,J(domain_omega, p, spacestep, mu1, V_0),mu)
+
         k += 1
 
     print('end. computing solution of Helmholtz problem')
@@ -195,9 +197,9 @@ if __name__ == '__main__':
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- set parameters of the geometry
-    N = 20  # number of points along x-axis
+    N = 50  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 1 # level of the fractal
+    level = 0 # level of the fractal
     spacestep = 1.0 / N  # mesh size
     c0 = 340
     # -- set parameters of the partial differential equation
@@ -273,7 +275,7 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     # -- compute optimization
     energy = numpy.zeros((100+1, 1), dtype=numpy.float64)
-    chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi, mu, mu1, 1e-2, 1e-2, 0.3, V_0)
+    chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi, mu, mu1, 1e-2, 1e-2, 2/5, V_0)
     # --- en of optimization
 
     chin = chi.copy()
