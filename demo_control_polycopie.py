@@ -32,7 +32,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
     k = 0
     (M, N) = numpy.shape(domain_omega)
     numb_iter = 5
-    energy = numpy.zeros((numb_iter, 1), dtype=numpy.float64)
+    energy = list()
 
     while k < numb_iter:
         print('---- iteration number = ', k)
@@ -42,29 +42,34 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
         q=compute_q(p, domain_omega, spacestep, wavenumber, Alpha, chi)
         print('3. computing objective function')
         E=J(domain_omega, p, spacestep, mu1, V_0)
-        energy[k] = E
-        while E>=J(domain_omega, p, spacestep, mu1, V_0) and mu > 10 ** -5:
+        energy.append(E)
+        E_next = E - 1
+
+        while E>=E_next and mu > 10 ** -5:
+        #Tant que l'énergie ne s'améliore pas, et que l'on a pas atteint un minimum, on fait une descente de gradient.
+        #On passe à l'itération suivante si l'énergie baisse.
             l=0
             #print('4. computing parametric gradient')
-            grad_J=diff_J(p,q,Alpha, domain_omega)
-            clipped_grad_J = preprocessing.set2zero(grad_J, domain_omega)
-            chi_next=projector(l,chi-mu*clipped_grad_J)
-            while abs(numpy.sum(chi_next)*spacestep-beta)>eps1:
+            grad_J=diff_J(p,q,Alpha, domain_omega)                              #Gradient de E vis à vis des points du domaine
+            clipped_grad_J = preprocessing.set2zero(grad_J, domain_omega)       #Gradient clip à zero en tout les points non frontaliers
+            chi_next=projector(l,chi-mu*clipped_grad_J)                         #Descente de gradient sous contraintes "X[k] in [0, 1]"
+            while abs(numpy.sum(chi_next)*spacestep-beta)>eps1:                 #Respect de la contrainte "sum(X) * spacestep = Beta"
                 if numpy.sum(chi_next)*spacestep>=beta:
                     l=l-eps2
                 else:
                     l=l+eps2
                 chi_next=projector(l,chi-mu*clipped_grad_J)
-            p_next=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi_next)
-            E_next=J(domain_omega, p_next, spacestep, mu1, V_0)
+            p_next=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi_next)  #Calcul du p possiblement meilleur. 
+            E_next=J(domain_omega, p_next, spacestep, mu1, V_0)                     #Calcul de l'E possiblement plus faible.
 
             if E_next<E:
                 # The step is increased if the energy decreased
                 mu = mu * 1.1
             else:
-                # The step is decreased is the energy increased
+                # The step is decreased if the energy increased
                 mu = mu / 2
             chi=chi_next
+            E = E_next
         k += 1
 
     print('end. computing solution of Helmholtz problem')
@@ -230,8 +235,9 @@ if __name__ == '__main__':
     mu1 = 10**(-5)  # parameter of the volume functional
 
 
-    postprocessing.myimshow(domain_omega, title='domain_omega', colorbar='colorbar', cmap='jet', vmin=-1, vmax=1)
-    matplotlib.pyplot.show()
+    # postprocessing.myimshow(domain_omega, title='domain_omega', colorbar='colorbar', cmap='jet', vmin=-1, vmax=1)
+    # matplotlib.pyplot.show()
+
     # ----------------------------------------------------------------------
     # -- Do not modify this cell, these are the values that you will be assessed against.
     # ----------------------------------------------------------------------
