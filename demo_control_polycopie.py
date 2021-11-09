@@ -247,7 +247,7 @@ def J(domain_omega, p, spacestep, mu1, V_0):
 
     p_conj = numpy.conjugate(p)
     p_norm = numpy.real(p * p_conj)
-    energy = numpy.sum(p_norm * p_norm) * spacestep * spacestep
+    energy = numpy.sum(p_norm) * spacestep * spacestep
 
     return energy
 
@@ -323,7 +323,7 @@ if __name__ == '__main__':
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- set parameters of the geometry
-    N = 20  # number of points along x-axis
+    N = 50  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
     level = 0 # level of the fractal
     spacestep = 1.0 / N  # mesh size
