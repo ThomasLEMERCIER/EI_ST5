@@ -3,7 +3,7 @@ import random
 import numpy as np
 
 class GA:
-    def __init__(self, Indiv, shape, fitness_function, pop_size, elitist_factor, parents_selection_method, mutation_rate, crossover_rate):
+    def __init__(self, Indiv, shape, normalization_indices, beta, domain, fitness_function, pop_size, elitist_factor, parents_selection_method, mutation_rate, crossover_rate):
 
         self.population = []
         self.pop_size = pop_size
@@ -20,7 +20,7 @@ class GA:
         # Generate initial population
         for _ in range(self.pop_size):
             self.population.append( Indiv(
-                                shape=shape, fitness_function=fitness_function))
+                                shape=shape, fitness_function=fitness_function, normalization_indices=normalization_indices, beta=beta, domain=domain))
 
         self.population.sort(key=self.get_fitness_score)
         self.best_indv = self.population[-1]
