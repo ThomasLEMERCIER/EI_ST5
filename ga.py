@@ -3,26 +3,24 @@ import random
 import numpy as np
 
 class GA:
-    def __init__(self, Indiv, fitness_function, config):
+    def __init__(self, Indiv, shape, fitness_function, pop_size, elitist_factor, parents_selection_method, mutation_rate, crossover_rate):
 
         self.population = []
-        self.pop_size = config.pop_size
+        self.pop_size = pop_size
 
-        self.elite_size = int(config.elitist_factor * config.pop_size)
+        self.elite_size = int(elitist_factor * pop_size)
 
-        self.parents_selection_method = config.parents_selection_method
+        self.parents_selection_method = parents_selection_method
 
-        self.mutation_rate = config.mutation_rate
-        self.crossover_rate = config.crossover_rate
+        self.mutation_rate = mutation_rate
+        self.crossover_rate = crossover_rate
 
         self.get_fitness_score = lambda indv: indv.fitness_score
 
         # Generate initial population
         for _ in range(self.pop_size):
             self.population.append( Indiv(
-                                shape=config.shape, fitness_function=fitness_function,
-                                starting_interval=config.starting_interval, interval=config.interval,
-                                crossover_method=config.crossover_method, mutation_method=config.mutation_method) )
+                                shape=shape, fitness_function=fitness_function))
 
         self.population.sort(key=self.get_fitness_score)
         self.best_indv = self.population[-1]
