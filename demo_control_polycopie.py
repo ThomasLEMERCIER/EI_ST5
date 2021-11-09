@@ -22,7 +22,6 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                            beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
                            Alpha, mu, chi, V_obj,V_0, mu1,eps1,eps2,beta):
     """This function return the optimized density.
-
     Parameter:
         cf solvehelmholtz's remarks
         Alpha: complex, it corresponds to the absorbtion coefficient;
@@ -38,6 +37,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
     numb_iter = 100
     energy = numpy.zeros((numb_iter+1, 1), dtype=numpy.float64)
 
+
     while k < numb_iter and mu > 10**(-5):
         print('---- iteration number = ', k)
         print('1. computing solution of Helmholtz problem')
@@ -48,7 +48,6 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha, chi)
         print('3. computing objective function')
         E=J(domain_omega, p, spacestep, mu1, V_0)
-        energy[k]=E
         while E>=J(domain_omega, p, spacestep, mu1, V_0) and mu > 10 ** -5:
             l=0
             print('4. computing parametric gradient')
@@ -61,10 +60,10 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                 else:
                     l=l+eps2
                 chi_next=projector(l,chi-mu*clipped_grad_J)
-
             p_next=compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha, chi_next)
             E_next=J(domain_omega, p_next, spacestep, mu1, V_0)
+
             if E_next<E:
                 # The step is increased if the energy decreased
                 mu = mu * 1.1
@@ -73,8 +72,8 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f
                 mu = mu / 2
             E=E_next
             chi=chi_next
-        k+=1
-    print(k)
+        k += 1
+
     return chi, energy, p, grad_J
 
 def projector(l,chi):
@@ -88,7 +87,6 @@ def J(domain_omega, p, spacestep, mu1, V_0):
     """
     This function compute the objective function:
     J(u,domain_omega)= \int_{domain_omega}||u||^2 + mu1*(Vol(domain_omega)-V_0)
-
     Parameter:
         domain_omega: Matrix (NxP), it defines the domain and the shape of the
         Robin frontier;
@@ -105,16 +103,12 @@ def J(domain_omega, p, spacestep, mu1, V_0):
     energy = numpy.sum(p_norm * p_norm) * spacestep * spacestep
 
     return energy
-g=0
+
 def compute_p(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, Alpha, chi):
-    global g
     alpha_rob = Alpha * chi
     p = processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
-    if g==0:
-        print(p)
-        g=1
     return p
 
 def compute_q(p, domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
@@ -129,6 +123,7 @@ def diff_J(p, q, alpha):
     return - numpy.real(alpha * p * q)
 
 if __name__ == '__main__':
+
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
@@ -211,10 +206,12 @@ if __name__ == '__main__':
     # -- compute optimization
     energy = numpy.zeros((100+1, 1), dtype=numpy.float64)
     #chi, energy, u, grad = your_optimization_procedure(...)
-    chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, omega, f, f_dir, f_neu, f_rob,
+    chi, energy, u, grad = your_optimization_procedure(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                            beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob,
                            Alpha, mu, chi, V_obj, V_0, mu1,10**-2,10**-3,2/5)
+
     # --- end of optimization
+
     chin = chi.copy()
     un = u.copy()
 
