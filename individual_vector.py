@@ -37,7 +37,9 @@ class Individual_vector():
         self.fit()
 
     def mutate(self):
-        self.chromosomes = 1 - self.chromosomes
+        #self.chromosomes = 1 - self.chromosomes
+        boundary_indices = np.logical_not(self.normalization_indices)
+        self.chromosomes[boundary_indices] = np.random.permutation(self.chromosomes[boundary_indices])
         self.normalize()
         self.fit()
 

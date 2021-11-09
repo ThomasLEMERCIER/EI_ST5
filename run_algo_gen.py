@@ -7,10 +7,12 @@ import processing
 import individual_vector
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 def fitness_function(chi, domain_omega, spacestep, wavenumber, Alpha):
     p = compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
-    return J(domain_omega, p, spacestep, None, None)
+    energy = J(domain_omega, p, spacestep, None, None)
+    return energy 
 
 def solve():
 
@@ -19,7 +21,7 @@ def solve():
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- set parameters of the geometry
-    N = 10  # number of points along x-axis
+    N = 100  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
     level = 0 # level of the fractal
     spacestep = 1.0 / N  # mesh size
@@ -47,26 +49,51 @@ def solve():
     print("Beta: ", beta) 
     fitness = lambda x: -fitness_function(x, domain_omega, spacestep, wavenumber, Alpha)
     energy_function = lambda x: fitness_function(x, domain_omega, spacestep, wavenumber, Alpha)
-    normalization_indices = np.where(domain_omega != _env.NODE_ROBIN)
+    normalization_indices = (domain_omega != _env.NODE_ROBIN)
 
-    ga = GA(individual_vector.Individual_vector, chi.shape, normalization_indices, beta, domain_omega, fitness, 100, 0, "tournament", 0.2, 0.8)
+
+    ga = GA(individual_vector.Individual_vector, chi.shape, normalization_indices, beta, domain_omega, fitness, 250, 0.15, "tournament", 0.2, 0.8)
 
     iterations = [0]
     energy = [energy_function(ga.best_indv.chromosomes)]
+    u0 = compute_p(domain_omega, spacestep, wavenumber, Alpha, ga.best_indv.chromosomes)
+    chi0 = ga.best_indv.chromosomes
+    plt.figure()
+    plt.ion()
 
-    for e in range(10):
+    for e in tqdm(range(25)):
 
-        print("Epoch: ", e)
         ga.step()
         iterations.append(iterations[-1]+1)
-        energy.append(ga.best_indv.fitness_score)
+        energy.append(energy_function(ga.best_indv.chromosomes))
+        plt.clf()
+        plt.plot(iterations, energy)
+        plt.pause(1e-3)
 
     plt.plot(iterations, energy)
     plt.show()
 
 
+    un = compute_p(domain_omega, spacestep, wavenumber, Alpha, ga.best_indv.chromosomes)
+    chin = ga.best_indv.chromosomes
+    postprocessing._plot_uncontroled_solution(u0, chi0)
+    postprocessing._plot_controled_solution(un, chin)
+    postprocessing._plot_error(err)
+    postprocessing._plot_energy_history(energy)
 
 
 if __name__ == "__main__":
 
-    solve()
+    import cProfile
+    cProfile.run("solve()", "output.dat")
+
+    import pstats
+    from pstats import SortKey
+
+    with open("output_time.txt", "w") as f:
+        p = pstats.Stats("output.dat", stream=f)
+        p.sort_stats("time").print_stats()
+
+    with open("output_calls.txt", "w") as f:
+        p = pstats.Stats("output.dat", stream=f)
+        p.sort_stats("calls").print_stats()
