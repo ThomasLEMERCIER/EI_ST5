@@ -71,12 +71,10 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
     print('end. computing solution of Helmholtz problem')
     return chi, energy, p, grad_J
 
-<<<<<<< HEAD
 def projector(domain, l,chi):
     indices = numpy.where(domain == _env.NODE_ROBIN)
     chi[indices] += l
-    numpy.maximum(0, numpy.minimum(1, chi))
-=======
+    return numpy.maximum(0, numpy.minimum(1, chi))
 
 def grad_shifted(grad,domain_omega):
     (M, N) = numpy.shape(domain_omega)
@@ -105,13 +103,6 @@ def grad_shifted(grad,domain_omega):
     return grad
 
 
-def projector(l,chi):
-    for i in range(len(chi)):
-        for j in range(len(chi[i])):
-            chi[i][j]=max(0,min(chi[i,j]+l,1))
->>>>>>> 30f9b45712f08b5a59c07e5e46ac1be099169954
-    return chi
-
 def J(domain_omega, p, spacestep, mu1, V_0):
     """
     This function compute the objective function:
@@ -131,7 +122,6 @@ def J(domain_omega, p, spacestep, mu1, V_0):
     p_conj = numpy.conjugate(p)
     p_norm = numpy.real(p * p_conj)
     energy = numpy.sum(p_norm * p_norm) * spacestep * spacestep
-
     return energy
 
 def compute_p(domain_omega, spacestep, wavenumber, Alpha, chi):
