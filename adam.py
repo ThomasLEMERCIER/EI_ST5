@@ -38,12 +38,13 @@ def GD_Adam(domain_omega, spacestep, wavenumber, Alpha, chi, mu, mu1, eps1, eps2
         m_bias_corrected = m/(1 - beta1 ** k)
         v_bias_corrected = v/(1 - beta2 ** k)
         chi = chi - alpha * m_bias_corrected / (numpy.sqrt(v_bias_corrected) + eps)
-
-        # l = dicho_l(chi, beta, -1, 1, domain_omega)
-        # chi=projector(domain_omega, l, chi)
-
         
-        
+        l = dicho_l(chi, beta, -np.max(chi), 1-np.min(chi), domain_omega)
+        chi=projector(domain_omega, l, chi)
+   
+        energy.append(E)
+        plot_energy(energy)
+        k += 1
 
     print('end. computing solution of Helmholtz problem')
     return chi, energy, p, grad_J
