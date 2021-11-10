@@ -5,6 +5,7 @@ import matplotlib.pyplot
 import numpy
 import os
 import math
+from directGradientDescent import DirectGradientDescent, DirectGradientDescent_Adam
 plt = matplotlib.pyplot
 
 # MRG packages
@@ -332,7 +333,7 @@ def plot_energy(Ene):
     plt.pause(1e-3)
 
 if __name__ == '__main__':
-    ALGO = GD_Adam
+    ALGO = DirectGradientDescent
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
