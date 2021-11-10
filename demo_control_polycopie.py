@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 # Python packages
 import matplotlib.pyplot
 import numpy
@@ -15,6 +14,26 @@ import postprocessing
 #import solutions
 from alpha import compute_alpha
 
+PRECISION_BETA = 1e-3
+
+def projector(domain, l,chi):
+    indices = numpy.where(domain == _env.NODE_ROBIN)
+    new_chi = numpy.copy(chi) 
+    new_chi[indices] += l
+    new_chi = numpy.maximum(0, numpy.minimum(1, new_chi))
+    return new_chi
+
+def dicho_l(x, beta, lmin, lmax, domain):
+    lmid = (lmax + lmin) / 2
+    x_new = projector(domain, lmid, x)
+    beta_current = numpy.sum(x_new)
+    #print("Beta current: ", beta_current, "for: ", lmin, lmax, lmid)
+    if abs(beta_current - beta) <= PRECISION_BETA:
+        return lmid
+    if beta_current >= beta:
+        return dicho_l(x, beta, lmin, lmid, domain) 
+    else:
+        return dicho_l(x, beta, lmid, lmax, domain)
 
 def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi, mu, mu1, eps1, eps2, beta, V_0):
     """This function return the optimized density.
@@ -32,7 +51,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
     (M, N) = numpy.shape(domain_omega)
     numb_iter = 5
     energy = numpy.zeros((numb_iter, 1), dtype=numpy.float64)
-
+    beta = numpy.sum(chi)
 
     while k < numb_iter and mu > 10**(-5):
         print('---- iteration number = ', k)
@@ -45,17 +64,11 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
         energy[k] = E
         E_next=E
         while E_next>=E and mu > 10 ** -5:
-            l=0
             print('4. computing parametric gradient')
             grad_J=diff_J(p,q,Alpha, domain_omega)
-            clipped_grad_J = grad_shifted(grad_J, domain_omega)
-            chi_next=projector(l,chi-mu*clipped_grad_J)
-            while abs(numpy.sum(chi_next)*spacestep-beta)>eps1:
-                if numpy.sum(chi_next)*spacestep>=beta:
-                    l=l-eps2
-                else:
-                    l=l+eps2
-                chi_next=projector(l,chi-mu*clipped_grad_J)
+            grad_J = preprocessing.set2zero(grad_J, domain_omega)
+            l = dicho_l(chi-mu*grad_J, beta, -1, 1, domain_omega)
+            chi_next=projector(domain_omega, l, chi-mu*grad_J)
             p_next=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi_next)
             E_next=J(domain_omega, p_next, spacestep, mu1, V_0)
             print(E,E_next,mu)
@@ -72,17 +85,8 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
     print('end. computing solution of Helmholtz problem')
     return chi, energy, p, grad_J
 
-<<<<<<< HEAD
-def projector(domain, l,chi):
-    indices = numpy.where(domain == _env.NODE_ROBIN)
-    chi[indices] += l
-    return numpy.maximum(0, numpy.minimum(1, chi))
-=======
->>>>>>> e4ae034ad9bd1c0a5d1935340b65b0fa557ad182
-
 def grad_shifted(grad,domain_omega):
     (M, N) = numpy.shape(domain_omega)
-
     indices_x,indices_y = numpy.where(domain_omega == _env.NODE_ROBIN)
     for i in range(len(indices_x)):
         x,y=indices_x[i],indices_y[i]
@@ -106,16 +110,6 @@ def grad_shifted(grad,domain_omega):
     grad=preprocessing.set2zero(grad,domain_omega)
     return grad
 
-
-<<<<<<< HEAD
-=======
-def projector(l,chi):
-    for i in range(len(chi)):
-        for j in range(len(chi[i])):
-            chi[i][j]=max(0,min(chi[i,j]+l,1))
-    return chi
-
->>>>>>> e4ae034ad9bd1c0a5d1935340b65b0fa557ad182
 def J(domain_omega, p, spacestep, mu1, V_0):
     """
     This function compute the objective function:
@@ -134,12 +128,8 @@ def J(domain_omega, p, spacestep, mu1, V_0):
 
     p_conj = numpy.conjugate(p)
     p_norm = numpy.real(p * p_conj)
-<<<<<<< HEAD
-    energy = numpy.sum(p_norm * p_norm) * spacestep * spacestep
-=======
     energy = numpy.sum(p_norm) * spacestep * spacestep
 
->>>>>>> e4ae034ad9bd1c0a5d1935340b65b0fa557ad182
     return energy
 
 def compute_p(domain_omega, spacestep, wavenumber, Alpha, chi):
@@ -184,26 +174,18 @@ def compute_q(p, domain_omega, spacestep, wavenumber, Alpha, chi):
     return q
 
 def diff_J(p, q, alpha, domain_omega):
-    return diff_J_shifted(p, q, alpha, domain_omega)
     return - numpy.real(alpha * p * q)
 
 def diff_J_shifted(p, q, alpha, domain_omega):
-    #Cas où la frontière est linéaire : domain_omega[N, 0:N] = _env.NODE_ROBIN
+    # Level de la fractale nulle <-> frontière horizontale
     M, N = domain_omega.shape
-    p_shifted = p.copy()
-    p_shifted[N, :] = p[N-1, :]
-    q_shifted = q.copy()
-    q_shifted[N, :] = q[N-1, :]
-    # extract_on_boundary(p_shifted, domain_omega)
-    # extract_on_boundary(q_shifted, domain_omega)
-    # extract_on_boundary(p*q, domain_omega)
-    return - numpy.real(alpha * p_shifted * q_shifted)
+    J_prime = - numpy.real(alpha * p * q)
+    J_prime[:-1] = J_prime[1:]
+    return J_prime
 
-def extract_on_boundary(matrix, domain_omega):
+def print_on_boundary(matrix, domain_omega):
     indices = numpy.where(domain_omega == _env.NODE_ROBIN)
     print(indices)
-
-
 
 if __name__ == '__main__':
 
@@ -272,8 +254,6 @@ if __name__ == '__main__':
     V_obj = numpy.sum(numpy.sum(chi)) / S  # constraint on the density
     mu = 5  # initial gradient step
     mu1 = 10**(-5)  # parameter of the volume functional
-
-
 
     # ----------------------------------------------------------------------
     # -- Do not modify this cell, these are the values that you will be assessed against.
