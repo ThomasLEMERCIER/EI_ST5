@@ -17,7 +17,10 @@ from utils import *
 from algo_optimisation import *
 #import solutions
 from alpha import compute_alpha
+from adam import GD_Adam
+import algo_optimisation
 
+<<<<<<< HEAD
 #Import GD algorithms
 from algos.adam import GD_Adam
 from algos.directGradientDescent import DirectGradientDescent, DirectGradientDescent_Adam
@@ -31,13 +34,18 @@ def plot_energy(Ene):
 
 if __name__ == '__main__':
     ALGO = GD_Adam
+=======
+
+if __name__ == '__main__':
+    ALGO = algo_optimisation.proposed_algo
+>>>>>>> ffdee7315a5e527b5ba71bffb28ef6728ccd99a0
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- set parameters of the geometry
     N = 20  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 0 # level of the fractal
+    level = 1 # level of the fractal
     spacestep = 1.0 / N  # mesh size
     c0 = 340
     # -- set parameters of the partial differential equation
@@ -113,10 +121,10 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     # -- compute optimization
     K = 100
-    chi, energy, u, grad = ALGO(chi, domain_omega, spacestep, wavenumber, Alpha, K)
+    chi, energy, u = ALGO(chi, domain_omega, spacestep, wavenumber, Alpha, K)
     # --- en of optimization
 
-    chin = chi.copy()
+    chin = chi.copy()    
     un = u.copy()
 
     # -- plot chi, u, and energy
