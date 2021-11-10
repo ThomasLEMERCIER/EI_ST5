@@ -28,6 +28,8 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
         the domain (not really important for our case, you can set it up to 0);
         V_0: float, volume constraint on the domain (you can it up to 1).
     """
+    plt.figure()
+    plt.ion()
 
     k = 0
     (M, N) = numpy.shape(domain_omega)
@@ -76,6 +78,7 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
             print(mu)
             chi=chi_next
             energy.append(E_next)
+            plot_energy(energy)
         k += 1
 
     print('end. computing solution of Helmholtz problem')
@@ -92,6 +95,8 @@ def procedure2(domain_omega, spacestep, wavenumber, Alpha, chi, mu, mu1, eps1, e
         the domain (not really important for our case, you can set it up to 0);
         V_0: float, volume constraint on the domain (you can it up to 1).
     """
+    plt.figure()
+    plt.ion()
 
     k = 0
     (M, N) = numpy.shape(domain_omega)
@@ -167,7 +172,7 @@ def SGD(domain_omega, spacestep, wavenumber, Alpha, chi, mu, mu1, eps1, eps2, be
     numb_iter = 100000
     energy = list()
 
-    mu = 0.01
+    mu = 1
     while k < numb_iter:
         print('---- iteration number = ', k)
         p=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
@@ -313,9 +318,9 @@ def extract_on_boundary(matrix, domain_omega):
     print(indices)
 
 def plot_energy(Ene):
-    matplotlib.pyplot.close()
-    matplotlib.pyplot.plot(Ene)
-    matplotlib.pyplot.savefig("ENERGIE")
+    plt.clf()
+    plt.plot(energy)
+    plt.pause(1e-3)
 
 if __name__ == '__main__':
     ALGO = SGD
@@ -323,7 +328,7 @@ if __name__ == '__main__':
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- set parameters of the geometry
-    N = 50  # number of points along x-axis
+    N = 20  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
     level = 0 # level of the fractal
     spacestep = 1.0 / N  # mesh size
