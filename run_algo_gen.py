@@ -1,17 +1,18 @@
 from ga import GA
 import _env
-from demo_control_polycopie import *
+import utils
 import postprocessing
 import preprocessing
 import processing
+import alpha
 import individual_vector
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 def fitness_function(chi, domain_omega, spacestep, wavenumber, Alpha):
-    p = compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
-    energy = J(domain_omega, p, spacestep, None, None)
+    p = utils.compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
+    energy = utils.J(domain_omega, p, spacestep, None, None)
     return energy 
 
 def solve():
@@ -30,7 +31,7 @@ def solve():
     # -- set parameters of the partial differential equation
     kx = -1.0
     ky = -1.0
-    wavenumber = numpy.sqrt(kx**2 + ky**2)  # wavenumber
+    wavenumber = np.sqrt(kx**2 + ky**2)  # wavenumber
     wavenumber = 10.0
     material = "MELAMINE"
     omega = wavenumber * c0 
@@ -43,7 +44,7 @@ def solve():
     chi = preprocessing.set2zero(chi, domain_omega)
     beta = np.sum(chi)
     # -- define absorbing material
-    Alpha = compute_alpha(material, omega, precision)
+    Alpha = alpha.compute_alpha(material, omega, precision)
     Alpha = Alpha[0] + Alpha[1] * 1j
     print("Alpha: ", Alpha)
     print("Beta: ", beta) 
@@ -56,7 +57,7 @@ def solve():
 
     iterations = [0]
     energy = [energy_function(ga.best_indv.chromosomes)]
-    u0 = compute_p(domain_omega, spacestep, wavenumber, Alpha, ga.best_indv.chromosomes)
+    u0 = utils.compute_p(domain_omega, spacestep, wavenumber, Alpha, ga.best_indv.chromosomes)
     chi0 = ga.best_indv.chromosomes
     plt.figure()
     plt.ion()
@@ -74,10 +75,11 @@ def solve():
     plt.show()
 
 
-    un = compute_p(domain_omega, spacestep, wavenumber, Alpha, ga.best_indv.chromosomes)
+    un = utils.compute_p(domain_omega, spacestep, wavenumber, Alpha, ga.best_indv.chromosomes)
     chin = ga.best_indv.chromosomes
     postprocessing._plot_uncontroled_solution(u0, chi0)
     postprocessing._plot_controled_solution(un, chin)
+    err = un - u0
     postprocessing._plot_error(err)
     postprocessing._plot_energy_history(energy)
 

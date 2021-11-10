@@ -4,12 +4,12 @@ import preprocessing
 import processing
 import matplotlib.pyplot as plt
 
-def projector(domain, l,chi):
+def projector(domain, l, x):
     indices = np.where(domain == _env.NODE_ROBIN)
-    new_chi = np.copy(chi) 
-    new_chi[indices] += l
-    new_chi = np.maximum(0, np.minimum(1, new_chi))
-    return new_chi
+    new_x = np.copy(x) 
+    new_x[indices] += l
+    new_x = np.maximum(0, np.minimum(1, new_x))
+    return new_x
 
 def compute_p(domain_omega, spacestep, wavenumber, Alpha, chi):
 
@@ -95,14 +95,13 @@ def J(domain_omega, p, spacestep, mu1, V_0):
     """
 
     p_conj = np.conjugate(p)
-    p_norm = np.real(p * p_conj)
-    energy = np.sum(p_norm) * spacestep * spacestep
+    p_square_norm = np.real(p * p_conj)
+    energy = np.sum(p_square_norm) 
 
     return energy
 
-def diff_J(p, q, alpha, domain_omega):
-    return diff_J_shifted(p, q, alpha, domain_omega)
-    return - numpy.real(alpha * p * q)
+def diff_J(p, q, alpha):
+    return - np.real(alpha * p * q)
 
 def diff_J_shifted(p, q, alpha, domain_omega):
     #Cas où la frontière est linéaire : domain_omega[N, 0:N] = _env.NODE_ROBIN
@@ -116,11 +115,45 @@ def diff_J_shifted(p, q, alpha, domain_omega):
     # extract_on_boundary(p*q, domain_omega)
     return - np.real(alpha * p_shifted * q_shifted)
 
-def extract_on_boundary(matrix, domain_omega):
+def print_on_boundary(matrix, domain_omega, msg=""):
     indices = np.where(domain_omega == _env.NODE_ROBIN)
-    print(indices)
+    print(msg, matrix[indices])
 
 def plot_energy(Ene):
     plt.clf()
     plt.plot(Ene)
     plt.pause(1e-3)
+
+def get_neighbors_values(matrix, index):
+    (M, N) = matrix.shape
+    x, y = index
+    values = np.zeros(shape=(8), dtype=matrix.dtype)
+    for i in range(-1 if x > 0 else 0, 2 if x < M else 1):
+        for j in range(-1 if y > 0 else 0, 2 if y < N-1 else 1):
+           values[i*3+j] = matrix[x + i, y+ j] 
+    return values
+
+def shift_on_boundary(matrix, domain_omega):
+
+    indices = np.where(domain_omega == _env.NODE_ROBIN)
+
+    new_matrix = np.zeros_like(matrix)
+
+    for index in zip(*indices):
+        neighbors_values = get_neighbors_values(matrix, index)
+        new_matrix[index] = np.sum(neighbors_values) / np.sum(neighbors_values != 0)
+
+    return new_matrix
+
+def compute_l(matrix, beta, domain, precision=1e-1, l_step=1e-3):
+    l = 0
+    matrix = projector(domain, l, matrix)
+    beta_current = np.sum(matrix)
+    while abs(beta_current - beta) >= precision:
+        if beta_current >= beta:
+            l -= l_step
+        else:
+            l += l_step
+        matrix = projector(domain, l, matrix)
+        beta_current = np.sum(matrix)
+    return l
