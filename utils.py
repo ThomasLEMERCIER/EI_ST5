@@ -3,6 +3,7 @@ import _env
 import preprocessing
 import processing
 import matplotlib.pyplot as plt
+
 def projector(domain, l,chi):
     indices = np.where(domain == _env.NODE_ROBIN)
     new_chi = np.copy(chi) 
@@ -121,5 +122,5 @@ def extract_on_boundary(matrix, domain_omega):
 
 def plot_energy(Ene):
     plt.clf()
-    plt.plot(energy)
+    plt.plot(Ene)
     plt.pause(1e-3)
