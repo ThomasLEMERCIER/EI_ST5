@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 # Python packages
 import matplotlib.pyplot
 import numpy
@@ -103,7 +102,7 @@ def procedure2(domain_omega, spacestep, wavenumber, Alpha, chi, mu, mu1, eps1, e
     numb_iter = 5
     energy = list()
 
-    mu = 0.01
+    mu = 0.1
     while k < (numb_iter := 20):
         print('---- iteration number = ', k)
         print('1. computing solution of Helmholtz problem')
