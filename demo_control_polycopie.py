@@ -73,7 +73,6 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
             p_next=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi_next)
             E_next=J(domain_omega, p_next, spacestep, mu1, V_0)
             print(E,E_next,mu)
-            if E_next<J(domain_omega, p, spacestep, mu1, V_0):
         energy.append(E)
         E_next = E + 1
         mu = 5
@@ -310,7 +309,7 @@ def print_on_boundary(matrix, domain_omega):
     print(indices)
 
 if __name__ == '__main__':
-    ALGO = SGD
+    ALGO = your_optimization_procedure
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
