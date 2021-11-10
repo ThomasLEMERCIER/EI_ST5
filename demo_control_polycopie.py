@@ -5,6 +5,7 @@ import matplotlib.pyplot
 import numpy
 import os
 import math
+
 plt = matplotlib.pyplot
 
 # MRG packages
@@ -12,6 +13,8 @@ import _env
 import preprocessing
 import processing
 import postprocessing
+from utils import *
+from algo_optimisation import *
 #import solutions
 from alpha import compute_alpha
 from adam import GD_Adam
