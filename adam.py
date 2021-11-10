@@ -30,7 +30,7 @@ def GD_Adam(domain_omega, spacestep, wavenumber, Alpha, chi, mu, mu1, eps1, eps2
 
         grad_J = diff_J(p,q,Alpha, domain_omega)                     #Gradient de E vis à vis des points du domaine
         grad_J = grad_shifted(grad_J, domain_omega)                  #Gradient clip à zero en tout les points non frontaliers
-        l = dicho_l(chi-mu*grad_J, beta, -1, 1, domain_omega)
+        l = dicho_l(chi-mu*grad_J, beta, -np.max(chi-mu*grad_J), 1-np.min(chi-mu*grad_J), domain_omega)
         chi=projector(domain_omega, l, chi-mu*grad_J)
    
         energy.append(E)
