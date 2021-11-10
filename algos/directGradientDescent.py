@@ -16,17 +16,10 @@ def DirectGradientDescent(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     k = 0
     beta = np.sum(chi)
     (M, N) = numpy.shape(domain_omega)
-    numb_iter = 100
     energy = list()
 
     alpha = 1
-    beta1 = 0.9
-    beta2 = 0.999
-    eps = 1e-8
     h = 1
-
-    m = numpy.zeros((M, N))
-    v = numpy.zeros((M, N))
 
     def Energy(chi):
         l = dicho_l(chi, beta, -np.max(chi), 1-np.min(chi), domain_omega)
@@ -53,7 +46,7 @@ def DirectGradientDescent(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     l = dicho_l(chi, beta, -1, 1, domain_omega)
     chi=projector(domain_omega, l, chi)
     p=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
-    return chi, energy, p, grad_Energy
+    return chi, energy, p
 
 
 def DirectGradientDescent_Adam(chi, domain_omega, spacestep, wavenumber, Alpha, K):

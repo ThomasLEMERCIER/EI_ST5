@@ -43,3 +43,19 @@ eps0 : valeure minimale du learning rate µ en dessous de laquelle on considère
 eps1 : erreur autorisé entre Beta et sum(chi)
 eps2 : pas de la correction de la
 eps3 : pas du learning rate µ
+
+initial
+for k in range(K):
+    calculer E = J(chi)
+    calculer grad_J = grad_J(X)
+
+    Tant que E la nouvelle énergie >= J(chi) et que le LR est trop grand (> LR_min):
+        chi_next = projecteur(chi - LR * grad_J)
+        calculer E = J(chi_next) la nouvelle énergie
+
+        Si E est meilleure (plus basse) que J(X):
+            augmenter le LR
+        Sinon:
+            baisser le LR
+    
+    chi = chi_next

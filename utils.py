@@ -96,7 +96,7 @@ def J(domain_omega, p, spacestep, mu1, V_0):
 
     p_conj = np.conjugate(p)
     p_square_norm = np.real(p * p_conj)
-    energy = np.sum(p_square_norm) 
+    energy = np.sum(p_square_norm) * spacestep * spacestep
 
     return energy
 
@@ -141,7 +141,7 @@ def shift_on_boundary(matrix, domain_omega):
 
     for index in zip(*indices):
         neighbors_values = get_neighbors_values(matrix, index)
-        new_matrix[index] = np.sum(neighbors_values) / np.sum(neighbors_values != 0)
+        new_matrix[index] = np.sum(neighbors_values) / max(1, np.sum(neighbors_values != 0))
 
     return new_matrix
 

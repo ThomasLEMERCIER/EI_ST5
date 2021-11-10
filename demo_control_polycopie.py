@@ -17,28 +17,21 @@ from utils import *
 from algo_optimisation import *
 #import solutions
 from alpha import compute_alpha
-from adam import GD_Adam
 import algo_optimisation
 
-<<<<<<< HEAD
 #Import GD algorithms
-from algos.adam import GD_Adam
 from algos.directGradientDescent import DirectGradientDescent, DirectGradientDescent_Adam
-from algos.proposed_algos import proposed_algo, proposed_algo_hesitating
-
+from algos.proposed_algos import proposed_algo, proposed_algo_2
+from algos.SGD import SGD, SGD_Adam, SGD_Adam
+from algos.softGD import softGD
 
 def plot_energy(Ene):
     plt.clf()
     plt.plot(Ene)
     plt.pause(1e-3)
-
+  
 if __name__ == '__main__':
-    ALGO = GD_Adam
-=======
-
-if __name__ == '__main__':
-    ALGO = algo_optimisation.proposed_algo
->>>>>>> ffdee7315a5e527b5ba71bffb28ef6728ccd99a0
+    ALGO = softGD
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
@@ -133,4 +126,5 @@ if __name__ == '__main__':
     err = un - u0
     postprocessing._plot_error(err)
     postprocessing._plot_energy_history(energy)
+    print("Energie finale obtenue :", energy[-1])
     print('End.')
