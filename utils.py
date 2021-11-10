@@ -2,7 +2,7 @@ import numpy as np
 import _env
 import preprocessing
 import processing
-
+import matplotlib.pyplot as plt
 def projector(domain, l,chi):
     indices = np.where(domain == _env.NODE_ROBIN)
     new_chi = np.copy(chi) 
