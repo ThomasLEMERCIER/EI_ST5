@@ -5,7 +5,7 @@ import matplotlib.pyplot
 import numpy
 import os
 import math
-from directGradientDescent import DirectGradientDescent, DirectGradientDescent_Adam
+
 plt = matplotlib.pyplot
 
 # MRG packages
@@ -13,9 +13,14 @@ import _env
 import preprocessing
 import processing
 import postprocessing
+from utils import *
+from algo_optimisation import *
 #import solutions
 from alpha import compute_alpha
-from adam import GD_Adam
+
+#Import GD algorithms
+from algos.adam import GD_Adam
+from algos.directGradientDescent import DirectGradientDescent, DirectGradientDescent_Adam
 
 def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi, mu, mu1, eps1, eps2, beta, V_0):
     """This function return the optimized density.
@@ -213,7 +218,7 @@ def SGD(domain_omega, spacestep, wavenumber, Alpha, chi, mu, mu1, eps1, eps2, be
 
 def plot_energy(Ene):
     plt.clf()
-    plt.plot(energy)
+    plt.plot(Ene)
     plt.pause(1e-3)
 
 if __name__ == '__main__':

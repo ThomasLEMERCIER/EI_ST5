@@ -70,8 +70,8 @@ def myimshow(tab, **kwargs):
 def _plot_uncontroled_solution(u, chi):
 #def _plot_uncontroled_solution(x_plot, y_plot, x, y, u, chi):
 
-    myimshow(numpy.real(u), title='$\operatorname{Re}(u_{0})$ in $\Omega$', colorbar='colorbar', cmap='jet', filename='fig_u0_re.jpg')
-    myimshow(numpy.imag(u), title='$\operatorname{Im}(u_{0})$ in $\Omega$', colorbar='colorbar', cmap='jet', filename='fig_u0_im.jpg')
+    myimshow(numpy.real(u), title='$\operatorname{Re}(u_{0})$ in $\Omega$', colorbar='colorbar', cmap='jet', vmin=-1, vmax=1, filename='fig_u0_re.jpg')
+    myimshow(numpy.imag(u), title='$\operatorname{Im}(u_{0})$ in $\Omega$', colorbar='colorbar', cmap='jet', vmin=-1, vmax=1, filename='fig_u0_im.jpg')
     myimshow(chi, title='$\chi_{0}$ in $\Omega$', colorbar='colorbar', cmap='jet', filename='fig_chi0_re.jpg')
     # k_begin = 0
     # k_end = len(x) - 1
