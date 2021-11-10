@@ -44,7 +44,6 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
         q=compute_q(p, domain_omega, spacestep, wavenumber, Alpha, chi)
         print('3. computing objective function')
         E=J(domain_omega, p, spacestep, mu1, V_0)
-<<<<<<< HEAD
         E_next=E
         while E_next>=E and mu > 10 ** -5:
             print('4. computing parametric gradient')
@@ -55,8 +54,6 @@ def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi,
             p_next=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi_next)
             E_next=J(domain_omega, p_next, spacestep, mu1, V_0)
             print(E,E_next,mu)
-=======
->>>>>>> 10961be6b8a98da82d02ce6c67ec3dcccc1c1c31
         energy.append(E)
         E_next = E + 1
 
