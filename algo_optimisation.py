@@ -5,7 +5,6 @@ def dicho_l(x, beta, lmin, lmax, domain, precision=1e-3):
     lmid = (lmax + lmin) / 2
     x_new = utils.projector(domain, lmid, x)
     beta_current = np.sum(x_new)
-    print("Beta target: ", beta, "Beta current: ", beta_current, "for: ", lmin, lmax, lmid)
     if abs(beta_current - beta) <= precision:
         return lmid
     if beta_current >= beta:

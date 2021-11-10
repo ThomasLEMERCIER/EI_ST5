@@ -1,46 +1,53 @@
-from algo_optimisation import *
-from utils import *
 import matplotlib.pyplot as plt
 import numpy
+import math
 
-def GD_Adam(chi, domain_omega, spacestep, wavenumber, Alpha, k):
+def sigmoid(x):
+    return 1/(1+math.exp(-x))
+def diff_sigmoid(x):
+    return math.exp(-x) * sigmoid(x) ** 2
+def logit(y):
+    math.log(y/(1-y))
+def softmax(X):
+    norm = numpy.sum(numpy.exp(X), axis = None)
+    print(norm)
+    return numpy.exp(X) / norm
+def grad_softmax(X):
+    
+    return
+
+def softGD(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     """
-    Descent de gradient avec Adam, en utilisant pour gradient -Re(a*p*q).
-    chi est corrigé après la descente de gradient ...
+    Descente de gradient vis à vis des paramètres theta, où chi = sigmoid(theta).
     """
     plt.figure()
     plt.ion()
 
     beta = np.sum(chi)
     (M, N) = numpy.shape(domain_omega)
-    numb_iter = 100000
+    k = 0
     energy = list()
 
-    alpha = 0.0001
-    beta1 = 0.9
-    beta2 = 0.999
-    eps = 1e-8
+    alpha = 0.01
     
-    m = numpy.zeros((M, N))
-    v = numpy.zeros((M, N))
-    
-    while k < numb_iter:
+    while k < K:
         print('---- iteration number = ', k)
         k += 1
+        #Calcul de chi_bar le softmax de chi
+        chi_bar = numpy.softmax
 
-        p=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
-        q=compute_q(p, domain_omega, spacestep, wavenumber, Alpha, chi)
+        #Calcul de grad_chi(E)
+        p=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi_bar)
+        q=compute_q(p, domain_omega, spacestep, wavenumber, Alpha, chi_bar)
         E=J(domain_omega, p, spacestep, None, None)
         energy.append(E)
         plot_energy(energy)
         grad_J = diff_J(p,q,Alpha, domain_omega)                     #Gradient de E vis à vis des points du domaine
         grad_J = grad_shifted(grad_J, domain_omega)                  #Gradient clip à zero en tout les points non frontaliers
         
-        m = beta1 * m + (1-beta1) * grad_J
-        v = beta2 * v + (1-beta2) * grad_J * grad_J
-        m_bias_corrected = m/(1 - beta1 ** k)
-        v_bias_corrected = v/(1 - beta2 ** k)
-        chi = chi - alpha * m_bias_corrected / (numpy.sqrt(v_bias_corrected) + eps)
+
+        grad_J *= 1
+        chi = chi - alpha * grad_J
         
         l = dicho_l(chi, beta, -np.max(chi), 1-np.min(chi), domain_omega)
         chi=projector(domain_omega, l, chi)
