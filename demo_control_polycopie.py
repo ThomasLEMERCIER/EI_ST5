@@ -14,7 +14,7 @@ import processing
 import postprocessing
 #import solutions
 from alpha import compute_alpha
-
+from adam import GD_Adam
 
 def your_optimization_procedure(domain_omega, spacestep, wavenumber, Alpha, chi, mu, mu1, eps1, eps2, beta, V_0):
     """This function return the optimized density.
@@ -332,7 +332,7 @@ def plot_energy(Ene):
     plt.pause(1e-3)
 
 if __name__ == '__main__':
-    ALGO = your_optimization_procedure
+    ALGO = GD_Adam
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------

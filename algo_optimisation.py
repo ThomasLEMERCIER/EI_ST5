@@ -1,5 +1,4 @@
 import numpy as np
-from demo_control_polycopie import Alpha
 import utils
 
 def dicho_l(x, beta, lmin, lmax, domain, precision=1e-3):

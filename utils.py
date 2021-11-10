@@ -118,3 +118,8 @@ def diff_J_shifted(p, q, alpha, domain_omega):
 def extract_on_boundary(matrix, domain_omega):
     indices = np.where(domain_omega == _env.NODE_ROBIN)
     print(indices)
+
+def plot_energy(Ene):
+    plt.clf()
+    plt.plot(energy)
+    plt.pause(1e-3)
