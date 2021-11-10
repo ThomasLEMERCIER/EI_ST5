@@ -115,7 +115,6 @@ def _plot_energy_history(energy):
     matplotlib.pyplot.plot(energy) #, cmap = 'jet')#, vmin = 1e-4, vmax = 1e-0)
     matplotlib.pyplot.title('Energy')
     #matplotlib.pyplot.colorbar()
-    #matplotlib.pyplot.show()
     filename = 'fig_energy_real.jpg'
     matplotlib.pyplot.savefig(filename)
     matplotlib.pyplot.close()
