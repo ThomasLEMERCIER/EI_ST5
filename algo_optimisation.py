@@ -30,3 +30,13 @@ def proposed_algo(chi0, lr):
                             wavenumber=wavenumber,
                             Alpha=Alpha,
                             chi=chi)
+
+        J = utils.J(domain_omega=domain_omega,
+                    p=p,
+                    spacestep=spacestep,
+                    mu1=None,
+                    V_0=None)
+
+        diff_J = utils.diff_J(p=p, q=q, alpha=Alpha, domain_omega=domain_omega)
+        diff_J = utils.shift_on_boundary(matrix=diff_J, domain_omega=domain_omega)
+        
