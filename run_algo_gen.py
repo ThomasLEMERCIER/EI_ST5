@@ -22,7 +22,7 @@ def solve():
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- set parameters of the geometry
-    N = 100  # number of points along x-axis
+    N = 20  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
     level = 0 # level of the fractal
     spacestep = 1.0 / N  # mesh size
@@ -53,10 +53,11 @@ def solve():
     normalization_indices = (domain_omega != _env.NODE_ROBIN)
 
 
-    ga = GA(individual_vector.Individual_vector, chi.shape, normalization_indices, beta, domain_omega, fitness, 250, 0.15, "tournament", 0.2, 0.8)
+    ga = GA(individual_vector.Individual_vector, chi.shape, normalization_indices, beta, domain_omega, fitness, 50, 0.15, "tournament", 0.2, 0.8)
 
     iterations = [0]
     energy = [energy_function(ga.best_indv.chromosomes)]
+    energy_mean = energy.copy()
     u0 = utils.compute_p(domain_omega, spacestep, wavenumber, Alpha, ga.best_indv.chromosomes)
     chi0 = ga.best_indv.chromosomes
     plt.figure()
@@ -67,11 +68,15 @@ def solve():
         ga.step()
         iterations.append(iterations[-1]+1)
         energy.append(energy_function(ga.best_indv.chromosomes))
+        energy_mean.append(utils.avg([energy_function(indiv.chromosomes) for indiv in ga.population]))
         plt.clf()
-        plt.plot(iterations, energy)
+        plt.plot(iterations, energy, label = "lowest energy")
+        plt.plot(iterations, energy_mean, label = "mean energy")
+        plt.legend()
         plt.pause(1e-3)
 
     plt.plot(iterations, energy)
+
     plt.show()
 
 

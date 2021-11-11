@@ -12,14 +12,14 @@ def DirectGradientDescent(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     """
     plt.figure()
     plt.ion()
-
+    
     k = 0
     beta = np.sum(chi)
     (M, N) = numpy.shape(domain_omega)
     energy = list()
 
     alpha = 1
-    h = 1
+    h = 0.01
 
     def Energy(chi):
         l = dicho_l(chi, beta, -np.max(chi), 1-np.min(chi), domain_omega)
@@ -52,7 +52,7 @@ def DirectGradientDescent(chi, domain_omega, spacestep, wavenumber, Alpha, K):
 def DirectGradientDescent_Adam(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     """
     Descent de gradient directe avec l'optimizer Adam et la notion de momentum.
-    Performance : 0.62
+    Performance : 0.49
     """
     plt.figure()
     plt.ion()
@@ -62,11 +62,11 @@ def DirectGradientDescent_Adam(chi, domain_omega, spacestep, wavenumber, Alpha, 
     (M, N) = numpy.shape(domain_omega)
     energy = list()
 
-    alpha = 1
+    alpha = 0.1
     beta1 = 0.9
     beta2 = 0.999
     eps = 1e-8
-    h = 1
+    h = 0.01
 
     m = numpy.zeros((M, N))
     v = numpy.zeros((M, N))
@@ -98,4 +98,4 @@ def DirectGradientDescent_Adam(chi, domain_omega, spacestep, wavenumber, Alpha, 
 
     print('end. computing solution of Helmholtz problem')
     p=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
-    return chi, energy, p, grad_Energy
+    return chi, energy, p

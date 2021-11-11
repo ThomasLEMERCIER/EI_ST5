@@ -23,7 +23,7 @@ import algo_optimisation
 from algos.directGradientDescent import DirectGradientDescent, DirectGradientDescent_Adam
 from algos.proposed_algos import proposed_algo, proposed_algo_2
 from algos.SGD import SGD, SGD_Adam, SGD_Adam
-from algos.softGD import softGD
+from algos.softGD import softGD, softDirectGD
 
 def plot_energy(Ene):
     plt.clf()
@@ -31,7 +31,7 @@ def plot_energy(Ene):
     plt.pause(1e-3)
   
 if __name__ == '__main__':
-    ALGO = softGD
+    ALGO = softDirectGD
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------

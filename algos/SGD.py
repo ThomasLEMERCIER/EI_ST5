@@ -33,7 +33,7 @@ def SGD(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     (M, N) = numpy.shape(domain_omega)
     energy = list()
     
-    mu = 0.01
+    mu = 0.00001
     K = 10000
     while k < K:
         print('---- iteration number = ', k)
@@ -75,14 +75,14 @@ def SGD_Adam(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     (M, N) = numpy.shape(domain_omega)
     energy = list()
     
-    alpha = 0.01
+    alpha = 0.00001
     beta1 = 0.9
     beta2 = 0.999
     eps = 1e-8
     m = numpy.zeros((M, N))
     v = numpy.zeros((M, N))
     
-    K = 10000
+    K = 1000
     while k < K:
         k += 1
         print('---- iteration number = ', k)
