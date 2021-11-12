@@ -59,3 +59,48 @@ for k in range(K):
             baisser le LR
     
     chi = chi_next
+
+
+
+
+1) Algorithme proposed_algo:
+
+Initialiser chi
+Initialiser mu = 5
+Pour K étapes :
+    calculer E = J(chi)
+    calculer grad = grad_J(chi)
+    Tant que l'énergie E est plus haute ou égal à J(chi):
+        chi_candidat = chi - mu * grad              (descente de gradient)
+        chi_candidat = projecteur(chi_candidat)     (projection pour respecter les contraintes)
+        E = J(chi_candidat)                         (on actualise l'énergie)
+
+        Si la nouvelle énergie E est plus basse que J(chi):
+            on augmente mu
+            chi = chi_candidat
+        Sinon:
+            on baisse mu
+Return chi
+
+
+
+
+
+2) Algorithme proposed_algo_2:
+
+Initialiser chi
+Pour K étapes :
+    calculer E = J(chi)
+    calculer grad = grad_J(chi)
+    fixer mu = 100
+    Tant que l'énergie E est plus haute ou égal à J(chi):
+        chi_candidat = chi - mu * grad              (descente de gradient)
+        chi_candidat = projecteur(chi_candidat)     (projection pour respecter les contraintes)
+        E = J(chi_candidat)                         (on actualise l'énergie)
+
+        Si la nouvelle énergie E est plus basse que J(chi):
+            on augmente mu
+            chi = chi_candidat
+        Sinon:
+            on baisse mu
+Return chi

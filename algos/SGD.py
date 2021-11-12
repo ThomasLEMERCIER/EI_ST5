@@ -33,8 +33,8 @@ def SGD(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     (M, N) = numpy.shape(domain_omega)
     energy = list()
     
-    mu = 0.00001
-    K = 10000
+    mu = 0.1
+    K = 100
     while k < K:
         print('---- iteration number = ', k)
         print('1. computing solution of Helmholtz problem')
@@ -49,8 +49,9 @@ def SGD(chi, domain_omega, spacestep, wavenumber, Alpha, K):
         grad_J = shift_on_boundary(grad_J, domain_omega)     #Gradient clip à zero en tout les points non frontaliers
     
         print('4. gradient descent')
+        chi = chi - mu * grad_J
         l = dicho_l(chi, beta, - numpy.max(chi), 1 - numpy.min(chi), domain_omega, precision=1e-3)
-        chi=projector(domain_omega, l, chi-mu*grad_J)             #Descente de gradient sous contraintes "X[k] in [0, 1]"
+        chi=projector(domain_omega, l, chi)             #Descente de gradient sous contraintes "X[k] in [0, 1]"
 
         energy.append(E) 
         plot_energy(energy)
@@ -75,14 +76,13 @@ def SGD_Adam(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     (M, N) = numpy.shape(domain_omega)
     energy = list()
     
-    alpha = 0.00001
+    alpha = 0.1
     beta1 = 0.9
     beta2 = 0.999
     eps = 1e-8
     m = numpy.zeros((M, N))
     v = numpy.zeros((M, N))
     
-    K = 1000
     while k < K:
         k += 1
         print('---- iteration number = ', k)

@@ -51,7 +51,7 @@ def softGD(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     energy = list()
 
     #Hyper Params
-    alpha = 0.1
+    alpha = 0.001
     beta1 = 0.9
     beta2 = 0.999
     eps = 1e-8
@@ -121,7 +121,7 @@ def softDirectGD(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     beta1 = 0.9
     beta2 = 0.999
     eps = 1e-8
-    h = 0.1
+    h = 0.01
 
     m = numpy.zeros((M, N))
     v = numpy.zeros((M, N))

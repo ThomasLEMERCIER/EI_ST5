@@ -20,9 +20,9 @@ from alpha import compute_alpha
 import algo_optimisation
 
 #Import GD algorithms
-from algos.directGradientDescent import DirectGradientDescent, DirectGradientDescent_Adam
 from algos.proposed_algos import proposed_algo, proposed_algo_2
-from algos.SGD import SGD, SGD_Adam, SGD_Adam
+from algos.SGD import SGD, SGD_Adam
+from algos.directGradientDescent import DirectGradientDescent, DirectGradientDescent_Adam
 from algos.softGD import softGD, softDirectGD
 
 def plot_energy(Ene):
@@ -31,7 +31,8 @@ def plot_energy(Ene):
     plt.pause(1e-3)
   
 if __name__ == '__main__':
-    ALGO = proposed_algo
+    ALGO = proposed_algo_2
+    K = 100
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
@@ -113,7 +114,6 @@ if __name__ == '__main__':
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------
     # -- compute optimization
-    K = 100
     chi, energy, u = ALGO(chi, domain_omega, spacestep, wavenumber, Alpha, K)
     # --- en of optimization
 

@@ -48,7 +48,7 @@ def proposed_algo(chi, domain_omega, spacestep, wavenumber, Alpha, K):
         grad_J = diff_J(p,q,Alpha)                  #Gradient de E vis à vis des points du domaine
         grad_J = shift_on_boundary(grad_J, domain_omega)     #Gradient clip à zero en tout les points non frontaliers
     
-        while E_next >= E and mu > 10 ** -5:
+        while (True or E_next >= E) and mu > 10 ** -5:
         #Tant que l'énergie ne s'améliore pas, et que l'on a pas atteint un minimum, on fait une descente de gradient avec un lr plus petit.
         #On passe à l'itération suivante si l'énergie baisse.
             print('4. gradient descent trial')
