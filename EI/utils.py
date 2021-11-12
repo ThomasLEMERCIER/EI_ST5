@@ -1,4 +1,5 @@
 import numpy
+from numpy.lib.index_tricks import index_exp
 np = numpy
 import EI._env
 _env = EI._env
@@ -17,6 +18,20 @@ def projector(domain, l, x):
     new_x[indices] += l
     new_x = np.maximum(0, np.minimum(1, new_x))
     return new_x
+
+def project(x, beta, domain):
+    l = dicho_l(x, beta, -np.max(x), 1-np.min(x), domain)
+    x = projector(domain, l, x)
+    return x
+
+def softmax(x):
+    exps = np.exp(x)
+    return exps / np.sum(exps)
+
+def softmax_project(x, beta, domain):
+    indices = np.where(domain == _env.NODE_ROBIN)
+    x[indices] = beta * softmax(x[indices])
+    return x
 
 def compute_p(domain_omega, spacestep, wavenumber, Alpha, chi):
 
@@ -53,7 +68,24 @@ def compute_q(p, domain_omega, spacestep, wavenumber, Alpha, chi):
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
     return q
 
-def J(domain_omega, p, spacestep, mu1, V_0):
+
+def energy(chi, domain, spacestep, wavenumber, Alpha):
+
+    p = compute_p(  domain_omega=domain,
+                    spacestep=spacestep,
+                    wavenumber=wavenumber,
+                    Alpha=Alpha,
+                    chi=chi)
+    
+    e = J(domain_omega=domain,
+                    p=p,
+                    spacestep=spacestep,
+                    mu1=None,
+                    V_0=None)
+
+    return e
+
+def J(domain_omega, p, spacestep, mu1=None, V_0=None):
     """
     This function compute the objective function:
     J(u,domain_omega)= \int_{domain_omega}||u||^2 + mu1*(Vol(domain_omega)-V_0)
@@ -71,7 +103,7 @@ def J(domain_omega, p, spacestep, mu1, V_0):
 
     p_conj = np.conjugate(p)
     p_square_norm = np.real(p * p_conj)
-    energy = np.sum(p_square_norm) * spacestep * spacestep
+    energy = np.sum(p_square_norm)
 
     return energy * spacestep * spacestep
 
@@ -81,11 +113,6 @@ def diff_J(p, q, alpha):
 def print_on_boundary(matrix, domain_omega, msg=""):
     indices = np.where(domain_omega == _env.NODE_ROBIN)
     print(msg, matrix[indices])
-
-def plot_energy(Ene):
-    plt.clf()
-    plt.plot(Ene)
-    plt.pause(1e-2)
 
 def get_neighbors_values(matrix, index):
     (M, N) = matrix.shape
@@ -108,19 +135,6 @@ def shift_on_boundary(matrix, domain_omega):
 
     return new_matrix
 
-def compute_l(matrix, beta, domain, precision=1e-1, l_step=1e-3):
-    l = 0
-    matrix = projector(domain, l, matrix)
-    beta_current = np.sum(matrix)
-    while abs(beta_current - beta) >= precision:
-        if beta_current >= beta:
-            l -= l_step
-        else:
-            l += l_step
-        matrix = projector(domain, l, matrix)
-        beta_current = np.sum(matrix)
-    return l
-
 def avg(L):
     return sum(L)/len(L)
 
@@ -135,3 +149,53 @@ def dicho_l(x, beta, lmin, lmax, domain, precision=1e-3):
         return dicho_l(x, beta, lmin, lmid, domain, precision) 
     else:
         return dicho_l(x, beta, lmid, lmax, domain, precision)
+
+def compute_grad_J_euler(chi, beta, domain, spacestep, wavenumber, Alpha, h=1e-3):
+    """
+    grad_J = J(chi + h) - J(chi) / h
+    
+    """
+    (M, N) = domain.shape
+
+    grad_J = np.zeros((M, N))
+    energy0 = energy(chi, domain, spacestep, wavenumber, Alpha)
+
+    for i, j in zip(*np.where(domain == _env.NODE_ROBIN)):
+
+        chih = np.copy(chi)
+        chih[i, j] = chih[i, j] + h
+
+        # -- project chih
+        chih = project(chih, beta, domain)
+
+        energyh = energy(chih, domain, spacestep, wavenumber, Alpha)
+
+        grad_J[i, j] = (energyh - energy0) / h
+
+    return grad_J
+
+def compute_all(chi, domain, spacestep, wavenumber, Alpha):
+
+    p = compute_p(  domain_omega=domain,
+                    spacestep=spacestep,
+                    wavenumber=wavenumber,
+                    Alpha=Alpha,
+                    chi=chi)
+    
+    q = compute_q(  p=p,
+                    domain_omega=domain,
+                    spacestep=spacestep,
+                    wavenumber=wavenumber,
+                    Alpha=Alpha,
+                    chi=chi)
+
+    e = J(  domain_omega=domain,
+            p=p,
+            spacestep=spacestep,
+            mu1=None,
+            V_0=None)
+
+    grad_J = diff_J(p=p, q=q, alpha=Alpha)
+    grad_J = shift_on_boundary(matrix=grad_J, domain_omega=domain)
+
+    return p, q, e, grad_J

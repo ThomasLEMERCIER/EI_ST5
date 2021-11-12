@@ -1,11 +1,8 @@
-import EI.utils
-import EI._env
-_env = EI._env
-utils = EI.utils
-import matplotlib.pyplot as plt
 import numpy as np
+import EI.utils
+utils = EI.utils
 
-def soft_ProjectedGradientDescent(chi0, domain_omega, spacestep, wavenumber, Alpha, K, lr=5):
+def ProjectedGradientDescent(chi0, domain_omega, spacestep, wavenumber, Alpha, K, lr=5):
 
     chi = np.copy(chi0)
     beta = np.sum(chi)
@@ -13,6 +10,7 @@ def soft_ProjectedGradientDescent(chi0, domain_omega, spacestep, wavenumber, Alp
     energy = []
 
     for k in range(0, K):
+
         print(f"--- Iteration: {k+1} ---")
 
         p, q, e, grad_J = utils.compute_all(chi, domain_omega, spacestep, wavenumber, Alpha)
@@ -20,7 +18,7 @@ def soft_ProjectedGradientDescent(chi0, domain_omega, spacestep, wavenumber, Alp
         energy.append(e)
 
         chi_next = chi-lr*grad_J
-        chi_next = utils.softmax_project(chi_next, beta, domain_omega)
+        chi_next = utils.project(chi_next, beta, domain_omega)
         
 
     p = utils.compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
@@ -28,7 +26,7 @@ def soft_ProjectedGradientDescent(chi0, domain_omega, spacestep, wavenumber, Alp
 
     return chi, energy, p
 
-def soft_evolutive_lr_ProjectedGradientDescent(chi0, domain_omega, spacestep, wavenumber, Alpha, K, lr=5, lr_min=1e-8):
+def evolutive_lr_ProjectedGradientDescent(chi0, domain_omega, spacestep, wavenumber, Alpha, K, lr=5, lr_min=1e-8):
 
     chi = np.copy(chi0)
     beta = np.sum(chi)
@@ -46,7 +44,7 @@ def soft_evolutive_lr_ProjectedGradientDescent(chi0, domain_omega, spacestep, wa
 
         while e_next >= e and lr > lr_min:
             chi_next = chi-lr*grad_J
-            chi_next = utils.softmax_project(chi_next, beta, domain_omega)
+            chi_next = utils.project(chi_next, beta, domain_omega)
         
             e_next = utils.energy(chi_next, domain_omega, spacestep, wavenumber, Alpha)
 
@@ -62,7 +60,7 @@ def soft_evolutive_lr_ProjectedGradientDescent(chi0, domain_omega, spacestep, wa
 
     return chi, energy, p
 
-def soft_evolutive_lr_ProjectedGradientDescent_Adam(chi0, domain_omega, spacestep, wavenumber, Alpha, K, lr=5, lr_min=1e-8):
+def evolutive_lr_ProjectedGradientDescent_Adam(chi0, domain_omega, spacestep, wavenumber, Alpha, K, lr=5, lr_min=1e-8):
 
     chi = np.copy(chi0)
     beta = np.sum(chi)
@@ -97,7 +95,7 @@ def soft_evolutive_lr_ProjectedGradientDescent_Adam(chi0, domain_omega, spaceste
         while e_next >= e and lr > lr_min:
 
             chi_next = chi-lr*corrected_grad_J
-            chi_next = utils.softmax_project(chi_next, beta, domain_omega)
+            chi_next = utils.project(chi_next, beta, domain_omega)
         
             e_next = utils.energy(chi_next, domain_omega, spacestep, wavenumber, Alpha)
 
