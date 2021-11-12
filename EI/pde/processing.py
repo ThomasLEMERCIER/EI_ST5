@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 # Python packages
 import matplotlib.pyplot
 import numpy
@@ -11,7 +10,8 @@ import scipy.sparse.linalg
 
 
 # MRG packages
-import _env
+import EI._env
+_env = EI._env
 
 
 def is_in_interior_domain(node):

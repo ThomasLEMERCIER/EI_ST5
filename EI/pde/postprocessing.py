@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 # Python packages
 import matplotlib.pyplot
 import numpy
@@ -8,8 +7,8 @@ import os
 plt = matplotlib.pyplot
 
 # MRG packages
-import _env
-
+import EI._env
+_env = EI._env
 
 def myimshow(tab, **kwargs):
     """Customized plot."""

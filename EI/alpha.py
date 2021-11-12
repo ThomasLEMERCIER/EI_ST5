@@ -1,7 +1,6 @@
 from math import pi, sqrt
 from cmath import exp
 from scipy.optimize import minimize
-from tqdm import tqdm
 
 
 def error(alpha, precision, initial_parameters):
@@ -141,7 +140,7 @@ if __name__ == "__main__":
     for material in materials:
         alphas_real = []
         alphas_img = []
-        for omega in tqdm(omegas):
+        for omega in omegas:
             initial_parameters = material_parameters(material, omega)
             result = minimize(lambda x: error(x, precision, initial_parameters).real, [-1,1])
             alpha = result.x

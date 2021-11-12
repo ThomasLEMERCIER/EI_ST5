@@ -1,6 +1,7 @@
-from algo_optimisation import *
-from utils import *
-import _env
+import EI.utils
+import EI._env
+_env = EI._env
+utils = EI.utils
 import matplotlib.pyplot as plt
 import numpy as np
 import math
@@ -14,9 +15,9 @@ def logit(y):
 
 def softmax(chi, domain_omega):
     indices = domain_omega == _env.NODE_ROBIN
-    chi[np.logical_not(indices)] = 0
-    exps = np.exp(chi[indices])
     chi_bar = np.copy(chi)
+    chi_bar[np.logical_not(indices)] = 0
+    exps = np.exp(chi_bar[indices])
     chi_bar[indices] = exps / np.sum(exps)
     return chi_bar
 
@@ -39,16 +40,11 @@ def softGD(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     Adam est implémenté.
     Performance : nulle (E augmente)
     """
-    plt.figure()
-    plt.ion()
-
-    #Vectorisation
-    
-    
-    beta = np.sum(chi)
     (M, N) = np.shape(domain_omega)
     k = 0
     energy = list()
+
+    beta = np.sum(chi)
 
     #Hyper Params
     alpha = 0.001
@@ -56,23 +52,20 @@ def softGD(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     beta2 = 0.999
     eps = 1e-8
 
-    m = numpy.zeros((M, N))
-    v = numpy.zeros((M, N))
+    m = np.zeros((M, N))
+    v = np.zeros((M, N))
 
-    K = 300
-    while k < K:
+    for k in range(K):
         print('---- iteration number = ', k)
-        k += 1
-
         #Softmax
         chi_bar = beta * softmax(chi, domain_omega)
 
         #Calcul de grad_chi(E)
-        p=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi_bar)
-        q=compute_q(p, domain_omega, spacestep, wavenumber, Alpha, chi_bar)
-        E=J(domain_omega, p, spacestep, None, None)
-        grad_chiBar_E = diff_J(p,q,Alpha)      
-        grad_chiBar_E = grad_shifted(grad_chiBar_E, domain_omega)                
+        p= utils.compute_p(domain_omega, spacestep, wavenumber, Alpha, chi_bar)
+        q= utils.compute_q(p, domain_omega, spacestep, wavenumber, Alpha, chi_bar)
+        E= utils.J(domain_omega, p, spacestep, None, None)
+        grad_chiBar_E = utils.diff_J(p,q,Alpha)      
+        grad_chiBar_E = utils.grad_shifted(grad_chiBar_E, domain_omega)                
         grad_chiBar_E = np.matrix.flatten(grad_chiBar_E)
 
         #Calcul de la jacobienne de softmax en chi
@@ -87,13 +80,8 @@ def softGD(chi, domain_omega, spacestep, wavenumber, Alpha, K):
         v = beta2 * v + (1-beta2) * grad_chi_E * grad_chi_E
         m_bias_corrected = m/(1 - beta1 ** k)
         v_bias_corrected = v/(1 - beta2 ** k)
-        chi = chi - alpha * m_bias_corrected / (numpy.sqrt(v_bias_corrected) + eps)
+        chi = chi - alpha * m_bias_corrected / (np.sqrt(v_bias_corrected) + eps)
    
-        energy.append(E)
-        plot_energy(energy)
-
-    print('end. computing solution of Helmholtz problem')
-    print("Performance :", energy[-1])
     return chi, energy, p
 
 

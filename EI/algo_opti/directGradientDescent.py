@@ -1,8 +1,9 @@
-from algo_optimisation import *
-from utils import *
+import EI.utils
+utils = EI.utils
 import matplotlib.pyplot as plt
-import numpy
-import _env
+import numpy as np
+import EI._env
+_env = EI._env
 
 def DirectGradientDescent(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     """
@@ -10,22 +11,20 @@ def DirectGradientDescent(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     où f est la fonction de calcul de l'énergie précédée de la fonction de respect de contrainte pour chi.
     Performance : 0.60
     """
-    plt.figure()
-    plt.ion()
     
     k = 0
     beta = np.sum(chi)
-    (M, N) = numpy.shape(domain_omega)
+    (M, N) = np.shape(domain_omega)
     energy = list()
 
     alpha = 1
     h = 0.01
 
     def Energy(chi):
-        l = dicho_l(chi, beta, -np.max(chi), 1-np.min(chi), domain_omega)
-        chi=projector(domain_omega, l, chi)
-        p=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
-        return J(domain_omega, p, spacestep, None, None)
+        l = utils.dicho_l(chi, beta, -np.max(chi), 1-np.min(chi), domain_omega)
+        chi= utils.projector(domain_omega, l, chi)
+        p= utils.compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
+        return utils.J(domain_omega, p, spacestep, None, None)
 
     while k < K:
         print('---- iteration number = ', k)
@@ -33,19 +32,18 @@ def DirectGradientDescent(chi, domain_omega, spacestep, wavenumber, Alpha, K):
 
         currentEnergy = Energy(chi)
         energy.append(currentEnergy)
-        plot_energy(energy)
 
-        grad_Energy = numpy.zeros((M, N))
+        grad_Energy = np.zeros((M, N))
         for i, j in zip(*np.where(domain_omega == _env.NODE_ROBIN)):
-            H = numpy.zeros((M, N))
+            H = np.zeros((M, N))
             H[i, j] = h
             grad_Energy[i, j] = (Energy(chi + H) - currentEnergy) / h
         chi = chi - alpha * grad_Energy
 
     print('end. computing solution of Helmholtz problem')
-    l = dicho_l(chi, beta, -1, 1, domain_omega)
-    chi=projector(domain_omega, l, chi)
-    p=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
+    l = utils.dicho_l(chi, beta, -1, 1, domain_omega)
+    chi= utils.projector(domain_omega, l, chi)
+    p= utils.compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
     return chi, energy, p
 
 
@@ -59,7 +57,7 @@ def DirectGradientDescent_Adam(chi, domain_omega, spacestep, wavenumber, Alpha, 
 
     k = 0
     beta = np.sum(chi)
-    (M, N) = numpy.shape(domain_omega)
+    (M, N) = np.shape(domain_omega)
     energy = list()
 
     alpha = 0.1
@@ -68,25 +66,23 @@ def DirectGradientDescent_Adam(chi, domain_omega, spacestep, wavenumber, Alpha, 
     eps = 1e-8
     h = 0.01
 
-    m = numpy.zeros((M, N))
-    v = numpy.zeros((M, N))
+    m = np.zeros((M, N))
+    v = np.zeros((M, N))
 
     def Energy(chi):
-        l = dicho_l(chi, beta, -np.max(chi), 1-np.min(chi), domain_omega)
-        chi=projector(domain_omega, l, chi)
-        p=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
-        return J(domain_omega, p, spacestep, None, None)
+        l = utils.dicho_l(chi, beta, -np.max(chi), 1-np.min(chi), domain_omega)
+        chi= utils.projector(domain_omega, l, chi)
+        p= utils.compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
+        return utils.J(domain_omega, p, spacestep, None, None)
 
-    while k < K:
+    for k in range(K):
         print('---- iteration number = ', k)
-        k += 1
         
         energy.append(Energy(chi))
-        plot_energy(energy)
 
-        grad_Energy = numpy.zeros((M, N))
+        grad_Energy = np.zeros((M, N))
         for i, j in zip(*np.where(domain_omega == _env.NODE_ROBIN)):
-            H = numpy.zeros((M, N))
+            H = np.zeros((M, N))
             H[i, j] = h
             grad_Energy[i, j] = (Energy(chi + H) - Energy(chi)) / h
         
@@ -94,8 +90,7 @@ def DirectGradientDescent_Adam(chi, domain_omega, spacestep, wavenumber, Alpha, 
         v = beta2 * v + (1-beta2) * grad_Energy * grad_Energy
         m_bias_corrected = m/(1 - beta1 ** k)
         v_bias_corrected = v/(1 - beta2 ** k)
-        chi = chi - alpha * m_bias_corrected / (numpy.sqrt(v_bias_corrected) + eps)
+        chi = chi - alpha * m_bias_corrected / (np.sqrt(v_bias_corrected) + eps)
 
-    print('end. computing solution of Helmholtz problem')
-    p=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
+    p= utils.compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
     return chi, energy, p

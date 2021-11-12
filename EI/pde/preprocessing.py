@@ -8,7 +8,8 @@ import os
 
 
 # MRG packages
-import _env
+import EI._env
+_env = EI._env
 
 
 def set2zero(alpha, domain_omega):
@@ -378,7 +379,6 @@ def partition_domain(domain, seed):
                 return Neighbours, Visited
 
     return domain
-
 
 def surlignefractale(domain, color_domain, color_seed):
     """Color the points in the interior domain at a distance to the boundary equal one."""
