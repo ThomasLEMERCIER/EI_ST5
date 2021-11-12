@@ -1,9 +1,9 @@
 from ga import GA
 import _env
 import utils
-import postprocessing
-import preprocessing
-import processing
+import pde.postprocessing
+import pde.preprocessing
+import pde.processing
 import alpha
 import individual_vector
 import numpy as np
@@ -37,11 +37,11 @@ def solve():
     omega = wavenumber * c0 
     precision = 15
 
-    domain_omega, x, y, _, _ = preprocessing._set_geometry_of_domain(M, N, level)
+    domain_omega, x, y, _, _ = pde.preprocessing._set_geometry_of_domain(M, N, level)
 
     # -- define material density matrix
-    chi = preprocessing._set_chi(M, N, x, y)
-    chi = preprocessing.set2zero(chi, domain_omega)
+    chi = pde.preprocessing._set_chi(M, N, x, y)
+    chi = pde.preprocessing.set2zero(chi, domain_omega)
     beta = np.sum(chi)
     # -- define absorbing material
     Alpha = alpha.compute_alpha(material, omega, precision)
@@ -81,11 +81,11 @@ def solve():
 
     un = utils.compute_p(domain_omega, spacestep, wavenumber, Alpha, ga.best_indv.chromosomes)
     chin = ga.best_indv.chromosomes
-    postprocessing._plot_uncontroled_solution(u0, chi0)
-    postprocessing._plot_controled_solution(un, chin)
+    pde.postprocessing._plot_uncontroled_solution(u0, chi0)
+    pde.postprocessing._plot_controled_solution(un, chin)
     err = un - u0
-    postprocessing._plot_error(err)
-    postprocessing._plot_energy_history(energy)
+    pde.postprocessing._plot_error(err)
+    pde.postprocessing._plot_energy_history(energy)
 
 
 if __name__ == "__main__":
