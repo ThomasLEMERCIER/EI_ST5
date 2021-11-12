@@ -31,7 +31,7 @@ def plot_energy(Ene):
     plt.pause(1e-3)
   
 if __name__ == '__main__':
-    ALGO = softDirectGD
+    ALGO = proposed_algo
     # ----------------------------------------------------------------------
     # -- Fell free to modify the function call in this cell.
     # ----------------------------------------------------------------------

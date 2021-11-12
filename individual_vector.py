@@ -1,5 +1,8 @@
+import enum
 import numpy as np
+from numpy.linalg import norm
 import _env
+import random as rd
 
 PRECISION_BETA = 1e-1
 
@@ -42,6 +45,7 @@ class Individual_vector():
         self.chromosomes[boundary_indices] = np.random.permutation(self.chromosomes[boundary_indices])
         self.normalize()
         self.fit()
+    
 
     def crossover(self, individual):
         alpha = np.random.uniform()
@@ -77,3 +81,88 @@ class Individual_vector():
         # -- constraint on density
         l = dicho_l(self.chromosomes, self.beta, -1, 1, self.domain)
         self.chromosomes=projector(self.domain, l, self.chromosomes)
+
+
+
+class Individual_vector_better():
+    def __init__(self, shape, fitness_function, normalization_indices, beta, domain):
+        self.shape = shape
+        self.beta = int(beta)
+        self.domain = domain
+        self.fitness_function = fitness_function
+        self.normalization_indices = normalization_indices
+        #Le chromosome est un vecteur de taille shape nulle hors de la frontière :
+        self.chromosomes = np.zeros(shape)
+        #Sur la frontière, beta composantes aléatoires sont à 1 :
+        boundary_indices = np.logical_not(self.normalization_indices)
+        L = [1] * self.beta + [0] * (np.sum(boundary_indices) - self.beta) 
+        rd.shuffle(L)
+        self.chromosomes[boundary_indices] = L
+        self.fit()
+    
+    def mutate(self):
+        boundary_indices = np.logical_not(self.normalization_indices)
+        n_boundary = np.sum(boundary_indices)
+        n_permutation = int(n_boundary * rd.random() * 0.4)     #0 à 20 permutation (alétoire) va s'échanger pour un vecteur de taille 100
+        indices = list(zip(*np.where(boundary_indices)))
+        for _ in range(n_permutation):
+            i, j = rd.sample(indices, k = 2)
+            self.chromosomes[i],  self.chromosomes[j] = self.chromosomes[j], self.chromosomes[i]
+        self.fit()
+
+    # def mutate(self):
+    #     boundary_indices = np.logical_not(self.normalization_indices)
+
+    #     indices = list(zip(*np.where(boundary_indices)))
+    #     n_boundary = len(indices)
+    #     n_1_to_move = rd.randint(0, self.beta - 1) #Numéro du 1 à bouger parmi les beta 1 que possède self.
+    #     k = 0
+    #     for i in range(len(indices)):
+    #         indice = indices[i]
+    #         if self.chromosomes[indice] == 1:
+    #             k += 1
+    #             if k == n_1_to_move:
+    #                 indice_next = indices[(i+1) % n_boundary]
+    #                 indice_previous = indices[(i-1) % n_boundary]
+    #                 if rd.random() > 0.5:
+    #                     self.chromosomes[indice_previous],  self.chromosomes[indice] = self.chromosomes[indice], self.chromosomes[indice_previous]
+    #                 else:
+    #                     self.chromosomes[indice_next],  self.chromosomes[indice] = self.chromosomes[indice], self.chromosomes[indice_next]
+    #                 break
+    #     self.fit()
+
+    def crossover(self, individual):
+        #Les composantes à 1 à la fois chez self et individual sont transmises à 1. Pour les 1 restants à transmettre afin que les enfants possèdent beta 1, on choisit au hasard entre
+        #self et individual puis on transmet une nouvelle composante à 1.
+        baby_1 = Individual_vector( shape=self.shape, fitness_function=self.fitness_function, normalization_indices=self.normalization_indices, beta=self.beta, domain=self.domain)
+        baby_2 = Individual_vector( shape=self.shape, fitness_function=self.fitness_function, normalization_indices=self.normalization_indices, beta=self.beta, domain=self.domain)
+        boundary_indices = np.logical_not(self.normalization_indices)
+        indices1 = set(zip(*np.where(self.chromosomes == 1)))          #Indices où self.chr vaut 1.
+        indices2 = set(zip(*np.where(individual.chromosomes == 1)))    #Indices où individual.chr vaut 1.    
+        indices12_both = indices1.intersection(indices2)               #self.chr et ind.chr valent tous deux 1.
+        indices1_only = list(indices1 - indices2)                      #Seul self.chr vaut 1.
+        indices2_only = list(indices2 - indices1)                      #Seul indiv.chr vaut 1.
+        N = self.beta - len(indices12_both) - 1                            
+        for baby in (baby_1, baby_2):
+            baby.chromosomes = np.zeros(self.shape)
+            for ind in indices12_both:
+                baby.chromosomes[ind] = 1
+            rd.shuffle(indices1_only)
+            rd.shuffle(indices2_only)
+            for k in range(N):
+                if rd.random() > 0.5:
+                    ind = indices1_only[k]
+                else:
+                    ind = indices2_only[k]
+                baby.chromosomes[ind] = 1
+            baby.fit()
+        return baby_1, baby_2
+
+    def fit(self):
+        self.fitness_score = self.fitness_function(self.chromosomes)
+
+    def copy(self):
+        duplicate = Individual_vector( shape=self.shape, fitness_function=self.fitness_function, normalization_indices=self.normalization_indices, beta=self.beta, domain=self.domain)
+        duplicate.chromosomes = self.chromosomes.copy()
+        duplicate.fitness_score = self.fitness_score
+        return duplicate

@@ -5,7 +5,7 @@
 import matplotlib.pyplot
 import numpy
 import os
-
+plt = matplotlib.pyplot
 
 # MRG packages
 import _env
@@ -72,7 +72,7 @@ def _plot_uncontroled_solution(u, chi):
 
     myimshow(numpy.real(u), title='$\operatorname{Re}(u_{0})$ in $\Omega$', colorbar='colorbar', cmap='jet', vmin=-1, vmax=1, filename='fig_u0_re.jpg')
     myimshow(numpy.imag(u), title='$\operatorname{Im}(u_{0})$ in $\Omega$', colorbar='colorbar', cmap='jet', vmin=-1, vmax=1, filename='fig_u0_im.jpg')
-    myimshow(chi, title='$\chi_{0}$ in $\Omega$', colorbar='colorbar', cmap='jet', filename='fig_chi0_re.jpg')
+    myimshow(chi, title='$\chi_{0}$ in $\Omega$', colorbar='colorbar', cmap='jet', vmin=-1, vmax=1, filename='fig_chi0_re.jpg')
     # k_begin = 0
     # k_end = len(x) - 1
     # for k in range(k_begin, k_end):
@@ -90,7 +90,7 @@ def _plot_controled_solution(u, chi):
 
     myimshow(numpy.real(u), title='$\operatorname{Re}(u_{n})$ in $\Omega$', colorbar='colorbar', cmap='jet', vmin=-1, vmax=1, filename='fig_un_re.jpg')
     myimshow(numpy.imag(u), title='$\operatorname{Im}(u_{n})$ in $\Omega$', colorbar='colorbar', cmap='jet', vmin=-1, vmax=1, filename='fig_un_im.jpg')
-    myimshow(chi, title='$\chi_{n}$ in $\Omega$', colorbar='colorbar', cmap='jet', filename='fig_chin_re.jpg')
+    myimshow(chi, title='$\chi_{n}$ in $\Omega$', colorbar='colorbar', cmap='jet', vmin=-1, vmax=1, filename='fig_chin_re.jpg')
     # k_begin = 0
     # k_end = len(x) - 1
     # for k in range(k_begin, k_end):
@@ -118,5 +118,4 @@ def _plot_energy_history(energy):
     filename = 'fig_energy_real.jpg'
     matplotlib.pyplot.savefig(filename)
     matplotlib.pyplot.close()
-
     return

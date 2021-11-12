@@ -33,7 +33,7 @@ def proposed_algo(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     energy = list()
 
     mu = 5
-    while k < K:
+    while k < K and mu > 10 ** -5:
         print('---- iteration number = ', k)
         print('1. computing solution of Helmholtz problem')
         p=compute_p(domain_omega, spacestep, wavenumber, Alpha, chi)
@@ -67,7 +67,7 @@ def proposed_algo(chi, domain_omega, spacestep, wavenumber, Alpha, K):
             
             energy.append(E_next)
             plot_energy(energy)
-
+            print(mu)
         chi = chi_next        
         k += 1
 

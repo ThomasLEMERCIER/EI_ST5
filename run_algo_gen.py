@@ -53,7 +53,7 @@ def solve():
     normalization_indices = (domain_omega != _env.NODE_ROBIN)
 
 
-    ga = GA(individual_vector.Individual_vector, chi.shape, normalization_indices, beta, domain_omega, fitness, 50, 0.15, "tournament", 0.2, 0.8)
+    ga = GA(individual_vector.Individual_vector_better, chi.shape, normalization_indices, beta, domain_omega, fitness, 50, 0.15, "tournament", 0.2, 0.8)
 
     iterations = [0]
     energy = [energy_function(ga.best_indv.chromosomes)]
@@ -64,8 +64,6 @@ def solve():
     plt.ion()
 
     for e in tqdm(range(25)):
-
-        ga.step()
         iterations.append(iterations[-1]+1)
         energy.append(energy_function(ga.best_indv.chromosomes))
         energy_mean.append(utils.avg([energy_function(indiv.chromosomes) for indiv in ga.population]))
@@ -74,9 +72,10 @@ def solve():
         plt.plot(iterations, energy_mean, label = "mean energy")
         plt.legend()
         plt.pause(1e-3)
+        ga.step()
+        
 
     plt.plot(iterations, energy)
-
     plt.show()
 
 

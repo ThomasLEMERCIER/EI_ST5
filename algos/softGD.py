@@ -101,6 +101,7 @@ def softGD(chi, domain_omega, spacestep, wavenumber, Alpha, K):
 def softDirectGD(chi, domain_omega, spacestep, wavenumber, Alpha, K):
     """
     On évalue le gradient avec la méthode de calcul à la limite f(x+h) - f(x) / h
+    Performance : 0.44
     """
     plt.figure()
     plt.ion()
