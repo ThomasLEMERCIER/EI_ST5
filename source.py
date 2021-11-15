@@ -38,6 +38,7 @@ if __name__ == '__main__':
     kx = -1.0
     ky = -1.0
     wavenumber = numpy.sqrt(kx**2 + ky**2)  # wavenumber
+    wavenumber = 10.0
     material = "MELAMINE"
     omega = wavenumber * c0 
     precision = 15
@@ -67,20 +68,17 @@ if __name__ == '__main__':
     Alpha = Alpha[0] + Alpha[1] * 1j
     alpha_rob = Alpha * chi
 
-    print(f"Value of beta before optimization: {np.sum(chi)}")
-
     # -- compute finite difference solution
     u = EI.pde.processing.solve_helmholtz(domain_omega, spacestep, wavenumber, f, f_dir, f_neu, f_rob,
                         beta_pde, alpha_pde, alpha_dir, beta_neu, beta_rob, alpha_rob)
     chi0 = chi.copy()
     u0 = u.copy()
+    
 
     # -- compute optimization
-    K = 10
     chi, energy, u = ALGO(chi, domain_omega, spacestep, wavenumber, Alpha, K)
     # --- en of optimization
 
-    print(f"Value of beta after optimization: {np.sum(chi)}")
     chin = chi.copy()    
     un = u.copy()
 
