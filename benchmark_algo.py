@@ -10,8 +10,10 @@ import EI.algo_opti.directGradientDescent
 import EI.algo_opti.GradientDescent
 import EI.algo_opti.softGD
 algo_opti = EI.algo_opti
+import EI.algo_gen.run_algo_gen as algo_gen
 
-# -- Outside module
+import EI.utils as utils
+# -- external import
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -42,10 +44,9 @@ def main():
     # -- define absorbing material
     Alpha = EI.alpha.compute_alpha(material, omega, alpha_precision)
     Alpha = Alpha[0] + Alpha[1] * 1j
-    alpha_rob = Alpha * chi0
+    print(Alpha)
 
-
-    K = 10 
+    K = 5 
     # algo_opti.directGradientDescent.DirectGradientDescent_Adam
     algos = [   algo_opti.GradientDescent.evolutive_lr_ProjectedGradientDescent,
                 algo_opti.GradientDescent.ProjectedGradientDescent,
@@ -55,9 +56,12 @@ def main():
                 algo_opti.softGD.soft_evolutive_lr_ProjectedGradientDescent,
                 algo_opti.softGD.soft_evolutive_lr_ProjectedGradientDescent_Adam,
                 algo_opti.softGD.soft_ProjectedGradientDescent,
+                algo_gen.run_algo_gen,
     ]
+
     iterations = np.arange(K+1)
     plt.figure()
+    ax = plt.subplot(111)
     for algo in algos:
 
 
@@ -65,9 +69,17 @@ def main():
         chi, energy, u = algo(chi0, domain_omega, spacestep, wavenumber, Alpha, K)
         # --- en of optimization
 
+        #chi = utils.project_to_admissible_set(chi)
+        #energy.append(utils.energy(chi, domain_omega, spacestep, wavenumber, Alpha))
+
+
         plt.plot(iterations, energy, label=algo.__name__)
 
-    plt.legend()
+
+    ax.set_xlabel("Number of iterations")
+    ax.set_ylabel("Energy")
+    plt.title(f"Energy as a function of iterations numbers for different algorithms")
+    plt.legend(loc='upper left')
     plt.show()
 
 if __name__ == "__main__":

@@ -1,11 +1,8 @@
-import enum
 import numpy as np
-from numpy.linalg import norm
-import _env
+from numpy.random.mtrand import beta
+import EI._env as _env
 import random as rd
-import utils
-
-PRECISION_BETA = 1e-1
+import EI.utils as utils
 
 class Individual_vector():
     def __init__(self, shape, fitness_function, normalization_indices, beta, domain):
@@ -22,7 +19,6 @@ class Individual_vector():
         self.fit()
 
     def mutate(self):
-        #self.chromosomes = 1 - self.chromosomes
         boundary_indices = np.logical_not(self.normalization_indices)
         self.chromosomes[boundary_indices] = np.random.permutation(self.chromosomes[boundary_indices])
         self.normalize()
@@ -61,9 +57,7 @@ class Individual_vector():
         self.chromosomes[self.normalization_indices] = 0
 
         # -- constraint on density
-        l = utils.dicho_l(self.chromosomes, self.beta, -1, 1, self.domain)
-        self.chromosomes=utils.projector(self.domain, l, self.chromosomes)
-
+        self.chromosomes=utils.project(self.chromosomes, self.beta, self.domain)
 
 
 class Individual_vector_better():
@@ -92,33 +86,11 @@ class Individual_vector_better():
             self.chromosomes[i],  self.chromosomes[j] = self.chromosomes[j], self.chromosomes[i]
         self.fit()
 
-    # def mutate(self):
-    #     boundary_indices = np.logical_not(self.normalization_indices)
-
-    #     indices = list(zip(*np.where(boundary_indices)))
-    #     n_boundary = len(indices)
-    #     n_1_to_move = rd.randint(0, self.beta - 1) #Numéro du 1 à bouger parmi les beta 1 que possède self.
-    #     k = 0
-    #     for i in range(len(indices)):
-    #         indice = indices[i]
-    #         if self.chromosomes[indice] == 1:
-    #             k += 1
-    #             if k == n_1_to_move:
-    #                 indice_next = indices[(i+1) % n_boundary]
-    #                 indice_previous = indices[(i-1) % n_boundary]
-    #                 if rd.random() > 0.5:
-    #                     self.chromosomes[indice_previous],  self.chromosomes[indice] = self.chromosomes[indice], self.chromosomes[indice_previous]
-    #                 else:
-    #                     self.chromosomes[indice_next],  self.chromosomes[indice] = self.chromosomes[indice], self.chromosomes[indice_next]
-    #                 break
-    #     self.fit()
-
     def crossover(self, individual):
         #Les composantes à 1 à la fois chez self et individual sont transmises à 1. Pour les 1 restants à transmettre afin que les enfants possèdent beta 1, on choisit au hasard entre
         #self et individual puis on transmet une nouvelle composante à 1.
         baby_1 = Individual_vector( shape=self.shape, fitness_function=self.fitness_function, normalization_indices=self.normalization_indices, beta=self.beta, domain=self.domain)
         baby_2 = Individual_vector( shape=self.shape, fitness_function=self.fitness_function, normalization_indices=self.normalization_indices, beta=self.beta, domain=self.domain)
-        boundary_indices = np.logical_not(self.normalization_indices)
         indices1 = set(zip(*np.where(self.chromosomes == 1)))          #Indices où self.chr vaut 1.
         indices2 = set(zip(*np.where(individual.chromosomes == 1)))    #Indices où individual.chr vaut 1.    
         indices12_both = indices1.intersection(indices2)               #self.chr et ind.chr valent tous deux 1.

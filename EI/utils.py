@@ -199,3 +199,12 @@ def compute_all(chi, domain, spacestep, wavenumber, Alpha):
     grad_J = shift_on_boundary(matrix=grad_J, domain_omega=domain)
 
     return p, q, e, grad_J
+
+def project_to_admissible_set(x):
+    (M, N) = x.shape
+    beta = int(np.sum(x))
+    indices_beta_max = np.argpartition(x, -beta, axis=None)[-beta:]
+    x = np.zeros(shape=(M*N), dtype=np.complex128)
+    x[indices_beta_max] = 1
+    x = x.reshape((M,N))
+    return x

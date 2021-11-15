@@ -23,15 +23,15 @@ if __name__ == '__main__':
 
     # ----------------------------------------------------------------------
     # -- Define the algo of optimization
-    ALGO = algo_opti.softGD.soft_evolutive_lr_ProjectedGradientDescent_Adam
+    ALGO = algo_opti.GradientDescent.evolutive_lr_ProjectedGradientDescent
     # ----------------------------------------------------------------------
 
     # ----------------------------------------------------------------------
     # -- Define the structure of the problem
     # ----------------------------------------------------------------------
-    N = 20  # number of points along x-axis
+    N = 100  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 0 # level of the fractal
+    level = 2 # level of the fractal
     spacestep = 1.0 / N  # mesh size
     c0 = 340
     # -- set parameters of the partial differential equation
