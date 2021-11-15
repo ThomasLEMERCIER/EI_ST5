@@ -27,22 +27,22 @@ if __name__ == '__main__':
 
     # ----------------------------------------------------------------------
     # -- Define the algo of optimization
-    ALGO = algo_gen.run_algo_gen.run_algo_gen
+    ALGO = algo_opti.directGradientDescent.DirectGradientDescent_Adam
     # ----------------------------------------------------------------------
 
     # ----------------------------------------------------------------------
     # -- Define the structure of the problem
     # ----------------------------------------------------------------------
-    N = 20  # number of points along x-axis
+    N = 100  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 1 # level of the fractal
+    level = 3 # level of the fractal
     spacestep = 1.0 / N  # mesh size
     c0 = 340
     # -- set parameters of the partial differential equation
     kx = -1.0
     ky = -1.0
     wavenumber = numpy.sqrt(kx**2 + ky**2)  # wavenumber
-    material = "MELAMINE"
+    material = "SUTHERLAND"
     omega = wavenumber * c0 
     precision = 15
 
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     u0 = u.copy()
     
 
-    k = 10
+    K = 5
     # -- compute optimization
     chi, energy, u = ALGO(chi, domain_omega, spacestep, wavenumber, Alpha, K)
     # --- en of optimization

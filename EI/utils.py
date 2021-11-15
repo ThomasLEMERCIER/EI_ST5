@@ -174,6 +174,30 @@ def compute_grad_J_euler(chi, beta, domain, spacestep, wavenumber, Alpha, h=1e-3
 
     return grad_J
 
+def compute_grad_J_euler_soft(chi, beta, domain, spacestep, wavenumber, Alpha, h=1e-3):
+    """
+    grad_J = J(chi + h) - J(chi) / h
+    
+    """
+    (M, N) = domain.shape
+
+    grad_J = np.zeros((M, N))
+    energy0 = energy(chi, domain, spacestep, wavenumber, Alpha)
+
+    for i, j in zip(*np.where(domain == _env.NODE_ROBIN)):
+
+        chih = np.copy(chi)
+        chih[i, j] = chih[i, j] + h
+
+        # -- project chih
+        chih = softmax_project(chih, beta, domain)
+
+        energyh = energy(chih, domain, spacestep, wavenumber, Alpha)
+
+        grad_J[i, j] = (energyh - energy0) / h
+
+    return grad_J
+
 def compute_all(chi, domain, spacestep, wavenumber, Alpha):
 
     p = compute_p(  domain_omega=domain,

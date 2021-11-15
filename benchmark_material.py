@@ -8,6 +8,7 @@ import EI.alpha
 # -- Optimization algorithm
 import EI.algo_opti.GradientDescent
 import EI.algo_opti.softGD
+import EI.algo_opti.directGradientDescent
 algo_opti = EI.algo_opti
 
 import EI.utils as utils
@@ -38,7 +39,7 @@ def main():
     chi0 = EI.pde.preprocessing.set2zero(chi0, domain_omega)
     # -- define absorbing material
     materials = ["BIRCHLT", "SUTHERLAND", "POLYURETHANE", "MELAMINE", "BIRCHLT"]
-    frequencies = np.linspace(3050, 4050, 100)
+    frequencies = np.linspace(3500, 4500, 100)
 
     K = 5 
     # algo_opti.directGradientDescent.DirectGradientDescent_Adam
@@ -58,11 +59,10 @@ def main():
             Alpha = Alpha[0] + Alpha[1] * 1j
 
             # -- compute optimization
-            chi, _, _ = EI.algo_opti.GradientDescent.evolutive_lr_ProjectedGradientDescent(chi0, domain_omega, spacestep, wavenumber, Alpha, K)
+            chi, e, _ = EI.algo_opti.directGradientDescent.DirectGradientDescent_Adam(chi0, domain_omega, spacestep, wavenumber, Alpha, K)
             # --- en of optimization
 
-            chi = utils.project_to_admissible_set(chi)
-            energy.append(utils.energy(chi, domain_omega, spacestep, wavenumber, Alpha))
+            energy.append(e[-1])
 
         ax.set_xlabel("Frequency")
         ax.set_ylabel("Energy")
