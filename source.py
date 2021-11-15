@@ -6,6 +6,8 @@ import numpy
 import os
 import math
 
+from EI import algo_gen
+
 plt = matplotlib.pyplot
 np = numpy
 
@@ -18,27 +20,28 @@ import EI.algo_opti.directGradientDescent
 import EI.algo_opti.GradientDescent
 import EI.algo_opti.softGD
 algo_opti = EI.algo_opti
+import EI.algo_gen.run_algo_gen
+algo_gen = EI.algo_gen
 
 if __name__ == '__main__':
 
     # ----------------------------------------------------------------------
     # -- Define the algo of optimization
-    ALGO = algo_opti.GradientDescent.evolutive_lr_ProjectedGradientDescent
+    ALGO = algo_gen.run_algo_gen.run_algo_gen
     # ----------------------------------------------------------------------
 
     # ----------------------------------------------------------------------
     # -- Define the structure of the problem
     # ----------------------------------------------------------------------
-    N = 100  # number of points along x-axis
+    N = 20  # number of points along x-axis
     M = 2 * N  # number of points along y-axis
-    level = 2 # level of the fractal
+    level = 1 # level of the fractal
     spacestep = 1.0 / N  # mesh size
     c0 = 340
     # -- set parameters of the partial differential equation
     kx = -1.0
     ky = -1.0
     wavenumber = numpy.sqrt(kx**2 + ky**2)  # wavenumber
-    wavenumber = 10.0
     material = "MELAMINE"
     omega = wavenumber * c0 
     precision = 15
@@ -75,6 +78,7 @@ if __name__ == '__main__':
     u0 = u.copy()
     
 
+    k = 10
     # -- compute optimization
     chi, energy, u = ALGO(chi, domain_omega, spacestep, wavenumber, Alpha, K)
     # --- en of optimization

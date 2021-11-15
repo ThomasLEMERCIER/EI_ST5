@@ -38,7 +38,7 @@ def main():
     chi0 = EI.pde.preprocessing.set2zero(chi0, domain_omega)
     # -- define absorbing material
     materials = ["BIRCHLT", "SUTHERLAND", "POLYURETHANE", "MELAMINE", "BIRCHLT"]
-    frequencies = np.linspace(4000, 4500, 50)
+    frequencies = np.linspace(3050, 4050, 100)
 
     K = 5 
     # algo_opti.directGradientDescent.DirectGradientDescent_Adam
